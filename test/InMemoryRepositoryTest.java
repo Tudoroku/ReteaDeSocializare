@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
@@ -165,6 +166,14 @@ public class InMemoryRepositoryTest {
         repo.delete(3L);
 
         assertFalse(repo.findAll().iterator().hasNext());
+
+        //Test lista imutabila
+        repo.save(user1);
+        Iterator<User> it = repo.findAll().iterator();
+        it.next();
+
+        assertThrows(UnsupportedOperationException.class, it::remove);
+
     }
 
 }
