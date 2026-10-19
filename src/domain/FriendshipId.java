@@ -6,6 +6,10 @@ public record FriendshipId(Long firstId, Long secondId) {
         {
             throw new IllegalArgumentException("Ids cannot be null");
         }
+        if(firstId <= 0 || secondId <= 0)
+        {
+            throw new IllegalArgumentException("Ids must be positive");
+        }
         if(firstId.equals(secondId))
         {
             throw new IllegalArgumentException("Ids cannot be equal");
