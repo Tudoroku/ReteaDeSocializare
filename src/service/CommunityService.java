@@ -32,8 +32,9 @@ public class CommunityService {
         return graph;
     }
 
-    private void dfs(Long start, Map<Long, Set<Long>> graph, Set<Long> visited)
+    private Set<Long> dfs(Long start, Map<Long, Set<Long>> graph, Set<Long> visited)
     {
+        Set<Long> component = new HashSet<>();
         Deque<Long> stack = new ArrayDeque<>();
 
         stack.push(start);
@@ -41,6 +42,7 @@ public class CommunityService {
 
         while (!stack.isEmpty()) {
             Long current = stack.pop();
+            component.add(current);
 
             for (Long neighbor : graph.get(current)) {
                 if (visited.add(neighbor)) {
@@ -48,28 +50,79 @@ public class CommunityService {
                 }
             }
         }
+
+        return component;
     }
 
-    public int getNumberOfCommunities()
+    public List<Set<Long>> getCommunities()
     {
-        var network = buildGraph();
-        if(network.isEmpty())
-        {
-            return 0;
-        }
-        Set<Long> visited = new HashSet<>();
-        int communities = 0;
-        Set<Long> vertices = network.keySet();
+        var graph = buildGraph();
 
-        for(var vertex : vertices)
-        {
-            if(!visited.contains(vertex))
-            {
-                dfs(vertex, network, visited);
-                communities++;
+        List<Set<Long>> communities = new ArrayList<>();
+        Set<Long> visited = new HashSet<>();
+
+        for (Long vertex : graph.keySet()) {
+            if (!visited.contains(vertex)) {
+                communities.add(dfs(vertex, graph, visited));
             }
         }
 
         return communities;
+    }
+
+    public int getNumberOfCommunities()
+    {
+        return getCommunities().size();
+    }
+
+    private int longestPathDFS(Long current, Map<Long, Set<Long>> graph, Set<Long> visited)
+    {
+        visited.add(current);
+
+        int maxLength = 0;
+
+        for (Long neighbor : graph.get(current))
+        {
+            if (!visited.contains(neighbor))
+            {
+                int length = 1 + longestPathDFS(neighbor, graph, visited);
+
+                maxLength = Math.max(maxLength, length);
+            }
+        }
+
+        visited.remove(current);
+
+        return maxLength;
+    }
+
+    public Set<Long> getMostSociableCommunity()
+    {
+        var graph = buildGraph();
+        List<Set<Long>> communities = getCommunities();
+        int maxGlobal = -1;
+
+        Set<Long> maxCom = Set.of();
+        Set<Long> visited = new HashSet<>();
+
+        for(var community : communities)
+        {
+            int maxLocal = Integer.MIN_VALUE;
+            for(var node : community)
+            {
+                int distance = longestPathDFS(node, graph, visited);
+                if(distance > maxLocal)
+                {
+                    maxLocal = distance;
+                }
+            }
+            if(maxLocal > maxGlobal)
+            {
+                maxGlobal = maxLocal;
+                maxCom = community;
+            }
+        }
+
+        return maxCom;
     }
 }
