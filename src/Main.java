@@ -1,3 +1,4 @@
+import domain.Friendship;
 import repository.*;
 import service.*;
 import ui.*;
@@ -12,6 +13,8 @@ public class Main {
 
     // validator
     UserValidator userValidator = new UserValidator();
+    Validator<Friendship> friendshipValidator =
+            new FriendshipValidator(userRepo);
 
     // services
     UserService userService = new UserService(

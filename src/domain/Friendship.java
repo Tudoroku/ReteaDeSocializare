@@ -1,16 +1,35 @@
 package domain;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 public class Friendship implements HasId<FriendshipId>{
     private final FriendshipId id;
+    private final LocalDateTime createdAt;
 
-    public Friendship(Long firstId, Long secondId)
-    {
-        this.id = new FriendshipId(firstId, secondId);
+    public Friendship(Long firstId, Long secondId) {
+        this(firstId, secondId, LocalDateTime.now());
     }
 
+    public Friendship(Long firstId, Long secondId, LocalDateTime createdAt)
+    {
+        this.id = new FriendshipId(firstId, secondId);
+        if(createdAt == null)
+        {
+            throw new IllegalArgumentException("Friendship date cannot be null");
+        }
+        this.createdAt = createdAt;
+    }
+
+    @Override
     public FriendshipId getId()
     {
         return this.id;
+    }
+
+    public LocalDateTime getCreatedAt()
+    {
+        return this.createdAt;
     }
 
     @Override
@@ -33,11 +52,11 @@ public class Friendship implements HasId<FriendshipId>{
         return "Friendship{" +
                 "firstId=" + id.firstId() +
                 ", secondId=" + id.secondId() +
+                ", createdAt=" + createdAt +
                 '}';
     }
     @Override
-    public int hashCode()
-    {
-        return (this.id.firstId().hashCode() + this.id.secondId().hashCode());
+    public int hashCode() {
+        return this.id.hashCode();
     }
 }
