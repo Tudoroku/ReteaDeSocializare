@@ -1,18 +1,17 @@
 package domain;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 public class User implements HasId<Long>{
     private final Long id;
-    private final String name;
-    private final LocalDate birthday;
+    private final String firstName;
+    private final String lastName;
 
-    public User(Long id, String name, LocalDate birthday)
+    public User(Long id, String firstName, String lastName)
     {
         this.id = id;
-        this.name = name;
-        this.birthday = birthday;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Override
@@ -21,14 +20,14 @@ public class User implements HasId<Long>{
         return this.id;
     }
 
-    public String getName()
+    public String getFirstName()
     {
-        return this.name;
+        return this.firstName;
     }
 
-    public LocalDate getBirthday()
+    public String getLastName()
     {
-        return this.birthday;
+        return this.lastName;
     }
 
     @Override
@@ -36,8 +35,8 @@ public class User implements HasId<Long>{
     {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", birthday=" + birthday +
+                ", first name='" + firstName + '\'' +
+                ", last name='" + lastName + '\'' +
                 '}';
     }
 
@@ -58,6 +57,6 @@ public class User implements HasId<Long>{
     @Override
     public int hashCode()
     {
-        return this.id.hashCode();
+        return Objects.hashCode(this.id);
     }
 }
