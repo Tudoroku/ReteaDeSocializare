@@ -5,7 +5,6 @@ import repository.InMemoryFriendshipRepository;
 import repository.InMemoryUserRepository;
 import service.CommunityService;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,10 +19,10 @@ public class CommunityServiceTest {
         var friendshipRepo = new InMemoryFriendshipRepository();
         var service = new CommunityService(userRepo, friendshipRepo);
 
-        User user1 = new User(1L, "Ana", LocalDate.of(2000, 1, 1));
-        User user2 = new User(2L, "Sebi", LocalDate.of(2001, 2, 2));
-        User user3 = new User(3L, "Chris", LocalDate.of(2002, 3, 3));
-        User user4 = new User(4L, "Stacy", LocalDate.of(2003, 4, 4));
+        User user1 = new User(1L, "Ana", "Popescu");
+        User user2 = new User(2L, "Sebi", "Popescu");
+        User user3 = new User(3L, "Chris", "Popescu");
+        User user4 = new User(4L, "Stacy", "Popescu");
 
         userRepo.save(user1);
         userRepo.save(user2);
@@ -58,12 +57,12 @@ public class CommunityServiceTest {
         // Test empty network
         assertEquals(0, service.getNumberOfCommunities());
 
-        User user1 = new User(1L, "Ana", LocalDate.of(2000, 1, 1));
-        User user2 = new User(2L, "Sebi", LocalDate.of(2001, 2, 2));
-        User user3 = new User(3L, "Chris", LocalDate.of(2002, 3, 3));
-        User user4 = new User(4L, "Stacy", LocalDate.of(2003, 4, 4));
-        User user5 = new User(5L, "Bernard", LocalDate.of(2004, 5, 5));
-        User user6 = new User(6L, "George", LocalDate.of(2005, 6, 6));
+        User user1 = new User(1L, "Ana", "Popescu");
+        User user2 = new User(2L, "Sebi", "Popescu");
+        User user3 = new User(3L, "Chris", "Popescu");
+        User user4 = new User(4L, "Stacy", "Popescu");
+        User user5 = new User(5L, "Bernard", "Popescu");
+        User user6 = new User(6L, "George", "Popescu");
 
         userRepo.save(user1);
         userRepo.save(user2);
@@ -108,12 +107,12 @@ public class CommunityServiceTest {
         // Test empty network
         assertTrue(service.getCommunities().isEmpty());
 
-        User user1 = new User(1L, "Ana", LocalDate.of(2000, 1, 1));
-        User user2 = new User(2L, "Sebi", LocalDate.of(2001, 2, 2));
-        User user3 = new User(3L, "Chris", LocalDate.of(2002, 3, 3));
-        User user4 = new User(4L, "Stacy", LocalDate.of(2003, 4, 4));
-        User user5 = new User(5L, "Bernard", LocalDate.of(2004, 5, 5));
-        User user6 = new User(6L, "George", LocalDate.of(2005, 6, 6));
+        User user1 = new User(1L, "Ana", "Popescu");
+        User user2 = new User(2L, "Sebi", "Popescu");
+        User user3 = new User(3L, "Chris", "Popescu");
+        User user4 = new User(4L, "Stacy", "Popescu");
+        User user5 = new User(5L, "Bernard", "Popescu");
+        User user6 = new User(6L, "George", "Popescu");
 
         // Salvare utilizatori
         userRepo.save(user1);
@@ -178,7 +177,7 @@ public class CommunityServiceTest {
             userRepo.save(new User(
                     id,
                     "User" + id,
-                    LocalDate.of(2000, 1, 1)
+                    "Popescu"
             ));
         }
 
@@ -216,7 +215,7 @@ public class CommunityServiceTest {
         User user = new User(
                 1L,
                 "Chris",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
 
         userRepo.save(user);
@@ -240,7 +239,7 @@ public class CommunityServiceTest {
             userRepo.save(new User(
                     id,
                     "User" + id,
-                    LocalDate.of(2000, 1, 1)
+                    "Popescu"
             ));
         }
 

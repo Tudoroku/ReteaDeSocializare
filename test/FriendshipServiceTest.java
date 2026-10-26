@@ -5,7 +5,6 @@ import repository.InMemoryFriendshipRepository;
 import repository.InMemoryUserRepository;
 import service.FriendshipService;
 
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,13 +20,13 @@ public class FriendshipServiceTest {
         User user1 = new User(
                 1L,
                 "Chris",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
 
         User user2 = new User(
                 2L,
                 "Stacy",
-                LocalDate.of(2001, 2, 2)
+                "Popescu"
         );
 
         userRepo.save(user1);
@@ -87,13 +86,13 @@ public class FriendshipServiceTest {
         User user1 = new User(
                 1L,
                 "Chris",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
 
         User user2 = new User(
                 2L,
                 "Stacy",
-                LocalDate.of(2001, 2, 2)
+                "Popescu"
         );
 
         userRepo.save(user1);

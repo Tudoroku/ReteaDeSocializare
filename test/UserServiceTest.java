@@ -4,13 +4,13 @@ import domain.Friendship;
 import domain.FriendshipId;
 import domain.User;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import repository.FriendshipRepository;
 import repository.InMemoryFriendshipRepository;
 import repository.InMemoryUserRepository;
 import service.UserService;
 import validation.UserValidator;
 
-import java.time.LocalDate;
 
 public class UserServiceTest {
 
@@ -26,7 +26,7 @@ public class UserServiceTest {
         User chris = new User(
                 1L,
                 "Chris",
-                LocalDate.of(2000,1,1)
+                "Popescu"
         );
 
         assertDoesNotThrow(() ->
@@ -39,7 +39,7 @@ public class UserServiceTest {
         User stacy = new User(
                 2L,
                 "     ",
-                LocalDate.of(2000, 2 ,2 )
+                "Popescu"
         );
 
         var snapshot = repo.findAll();
@@ -54,7 +54,7 @@ public class UserServiceTest {
         User bernard = new User(
                 1L,
                 "Bernard",
-                LocalDate.of(2002, 2, 3)
+                "Popescu"
         );
 
         assertThrows(IllegalArgumentException.class, () ->
@@ -62,6 +62,43 @@ public class UserServiceTest {
            service.addUser(bernard);
         });
         assertSame(chris, repo.findOne(1L).orElseThrow());
+    }
+
+    @Test
+    void testInvalidNamesDoNotChangeRepository()
+    {
+        var repo = new InMemoryUserRepository();
+        var validator = new UserValidator();
+        var friendshipRepo = new InMemoryFriendshipRepository();
+        var service = new UserService(repo, validator, friendshipRepo);
+
+        User existingUser = new User(1L, "Chris", "Popescu");
+        service.addUser(existingUser);
+        var snapshot = repo.findAll();
+
+        User[] invalidUsers = {
+                new User(2L, null, "Popescu"),
+                new User(2L, "", "Popescu"),
+                new User(2L, " \t\n ", "Popescu"),
+                new User(2L, "Stacy", null),
+                new User(2L, "Stacy", ""),
+                new User(2L, "Stacy", " \t\n ")
+        };
+
+        for(User user : invalidUsers)
+        {
+            assertThrows(IllegalArgumentException.class, new Executable()
+            {
+                @Override
+                public void execute()
+                {
+                    service.addUser(user);
+                }
+            });
+            assertEquals(snapshot, repo.findAll());
+            assertSame(existingUser, repo.findOne(1L).orElseThrow());
+            assertTrue(repo.findOne(2L).isEmpty());
+        }
     }
 
     @Test
@@ -75,19 +112,19 @@ public class UserServiceTest {
         User user1 = new User(
                 1L,
                 "Chris",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
 
         User user2 = new User(
                 2L,
                 "Stacy",
-                LocalDate.of(2001, 2, 2)
+                "Popescu"
         );
 
         User user3 = new User(
                 3L,
                 "Bernard",
-                LocalDate.of(2002, 3, 3)
+                "Popescu"
         );
 
         // Salvare utilizatori

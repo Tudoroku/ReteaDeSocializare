@@ -5,8 +5,6 @@ import service.CommunityService;
 import service.FriendshipService;
 import service.UserService;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class ConsoleUI implements UI{
@@ -56,10 +54,6 @@ public class ConsoleUI implements UI{
             {
                 System.out.println("Error: " + e.getMessage());
             }
-            catch(DateTimeParseException e)
-            {
-                System.out.println("Invalid date! Use yyyy-MM-dd.");
-            }
         }
 
         System.out.println("Goodbye!");
@@ -99,13 +93,13 @@ public class ConsoleUI implements UI{
         System.out.print("User ID: ");
         Long id = Long.parseLong(scanner.nextLine().trim());
 
-        System.out.print("Name: ");
-        String name = scanner.nextLine().trim();
+        System.out.print("First name: ");
+        String firstName = scanner.nextLine().trim();
 
-        System.out.print("Birthday (yyyy-MM-dd): ");
-        LocalDate birthday = LocalDate.parse(scanner.nextLine().trim());
+        System.out.print("Last name: ");
+        String lastName = scanner.nextLine().trim();
 
-        User user = new User(id, name, birthday);
+        User user = new User(id, firstName, lastName);
         userService.addUser(user);
 
         System.out.println("User added successfully!");

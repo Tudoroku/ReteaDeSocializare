@@ -1,10 +1,10 @@
 import domain.User;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import validation.UserValidator;
 import validation.Validator;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
 
 public class UserValidatorTest {
     private final Validator<User> validator = new UserValidator();
@@ -15,11 +15,13 @@ public class UserValidatorTest {
             User user = new User(
                     1L,
                     "Gheorghe",
-                    LocalDate.of(2002, 3, 20)
+                    "Popescu"
             );
         assertDoesNotThrow(() -> {
             validator.validate(user);
         });
+        assertEquals("Gheorghe", user.getFirstName());
+        assertEquals("Popescu", user.getLastName());
     }
 
     @Test
@@ -39,7 +41,7 @@ public class UserValidatorTest {
         User user1 = new User(
                 null,
                 "name",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
@@ -50,7 +52,7 @@ public class UserValidatorTest {
         User user2 = new User(
                 0L,
                 "name",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
@@ -61,7 +63,7 @@ public class UserValidatorTest {
         User user3 = new User(
                 -2L,
                 "name",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
@@ -70,35 +72,35 @@ public class UserValidatorTest {
     }
 
     @Test
-    void testNameValidation()
+    void testFirstNameValidation()
     {
-        //Test null name
+        //Test null first name
         User user1 = new User(
                 1L,
                 null,
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
             validator.validate(user1);
         });
 
-        //Test empty name
+        //Test empty first name
         User user2 = new User(
                 1L,
                 "",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
             validator.validate(user2);
         });
 
-        //Test blank name (with spaces)
+        //Test blank first name (with spaces)
         User user3 = new User(
                 1L,
                 "     ",
-                LocalDate.of(2000, 1, 1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () ->
         {
@@ -107,50 +109,66 @@ public class UserValidatorTest {
     }
 
     @Test
-    void testBirthdateValidation()
+    void testLastNameValidation()
     {
-        //Test null birthdate
+        //Test null last name
         User user1 = new User(
                 1L,
                 "Sebastian",
                 null
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            validator.validate(user1);
+            @Override
+            public void execute()
+            {
+                validator.validate(user1);
+            }
         });
 
-        //Test future birthdate
+        //Test empty last name
         User user2 = new User(
                 1L,
                 "Sebastian",
-                LocalDate.of(LocalDate.now().getYear() + 1, 1, 1)
+                ""
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            validator.validate(user2);
+            @Override
+            public void execute()
+            {
+                validator.validate(user2);
+            }
         });
 
+        //Test blank last name (with spaces, tabs and newlines)
         User user3 = new User(
                 1L,
                 "Sebastian",
-                LocalDate.of(LocalDate.now().getYear() - 150,
-                        LocalDate.now().getMonth(),
-                        LocalDate.now().getDayOfMonth())
+                " \t\n "
         );
-        assertDoesNotThrow( () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            validator.validate(user3);
+            @Override
+            public void execute()
+            {
+                validator.validate(user3);
+            }
         });
 
+        //Test valid names containing spaces, hyphens and apostrophes
         User user4 = new User(
                 1L,
-                "Sebastian",
-                LocalDate.of(LocalDate.now().getYear() - 151, 1, 1)
+                "Ana Maria",
+                "Popescu-O'Neil"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertDoesNotThrow(new Executable()
         {
-           validator.validate(user4);
+            @Override
+            public void execute()
+            {
+                validator.validate(user4);
+            }
         });
 
 

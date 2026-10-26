@@ -5,7 +5,6 @@ import repository.InMemoryRepository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.*;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
@@ -21,7 +20,7 @@ public class InMemoryRepositoryTest {
         User user = new User(
                 1L,
                 "Ana",
-                LocalDate.of(2001,1,1)
+                "Popescu"
         );
         repo.save(user);
         assertTrue(repo.findOne(1L).isPresent());
@@ -32,7 +31,7 @@ public class InMemoryRepositoryTest {
         User user1 = new User(
                 1L,
                 "Gheorghe",
-                LocalDate.of(2000,1, 1)
+                "Popescu"
         );
 
         assertThrows(IllegalArgumentException.class, () -> repo.save(user1));
@@ -44,7 +43,7 @@ public class InMemoryRepositoryTest {
         User nullUser = new User(
                 null,
                 "null",
-                LocalDate.of(1,1,1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () -> repo.save(nullUser));
     }
@@ -60,7 +59,7 @@ public class InMemoryRepositoryTest {
         User user1 = new User(
                 21L,
                 "Gheorghe",
-                LocalDate.of(2000,1, 1)
+                "Popescu"
         );
         repo.save(user1);
         assertSame(user1, repo.findOne(21L).orElseThrow());
@@ -76,7 +75,7 @@ public class InMemoryRepositoryTest {
         User user = new User(
                 1L,
                 "Ana",
-                LocalDate.of(2001,1,1)
+                "Popescu"
         );
         repo.save(user);
 
@@ -96,7 +95,7 @@ public class InMemoryRepositoryTest {
         User user = new User(
                 1L,
                 "Ana",
-                LocalDate.of(2001,1,1)
+                "Popescu"
         );
 
         repo.save(user);
@@ -104,18 +103,20 @@ public class InMemoryRepositoryTest {
         User user1 = new User(
                 1L,
                 "Sebi",
-                LocalDate.of(2002,3,3)
+                "Ionescu"
         );
 
         repo.update(user1);
         assertSame(user1, repo.findOne(1L).orElseThrow());
+        assertEquals("Sebi", repo.findOne(1L).orElseThrow().getFirstName());
+        assertEquals("Ionescu", repo.findOne(1L).orElseThrow().getLastName());
 
 
         //Test update on inexistent entity
         User user2 = new User(
                 3L,
                 "Parizer",
-                LocalDate.of(2001,1,1)
+                "Popescu"
         );
 
         assertThrows(IllegalArgumentException.class, () -> repo.update(user2));
@@ -127,7 +128,7 @@ public class InMemoryRepositoryTest {
         User nullUser = new User(
                 null,
                 "null",
-                LocalDate.of(1,1,1)
+                "Popescu"
         );
         assertThrows(IllegalArgumentException.class, () -> repo.update(nullUser));
     }
@@ -136,9 +137,9 @@ public class InMemoryRepositoryTest {
     void testFindAll() {
         var repo = new InMemoryRepository<Long, User>();
 
-        User user1 = new User(1L, "Ana", LocalDate.of(2001, 1, 1));
-        User user2 = new User(2L, "Sebi", LocalDate.of(2002, 3, 3));
-        User user3 = new User(3L, "Parizer", LocalDate.of(2001, 1, 1));
+        User user1 = new User(1L, "Ana", "Popescu");
+        User user2 = new User(2L, "Sebi", "Popescu");
+        User user3 = new User(3L, "Parizer", "Popescu");
 
         // Repository initial gol
         assertFalse(repo.findAll().iterator().hasNext());
