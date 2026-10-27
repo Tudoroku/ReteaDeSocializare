@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
         extends InMemoryRepository<ID, E> {
@@ -104,19 +105,51 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
     public void save(E entity) {
         validator.validate(entity);
         super.save(entity);
-        writeToFile();
+        try {
+            writeToFile();
+        }
+        catch (RepositoryException e)
+        {
+            super.delete(entity.getId());
+            throw e;
+        }
     }
 
     @Override
     public void delete(ID id) {
+        Optional<E> entity = super.findOne(id);
+        if(entity.isEmpty())
+        {
+            throw new IllegalArgumentException("Inexistent Id");
+        }
         super.delete(id);
-        writeToFile();
+        try {
+            writeToFile();
+        }
+        catch (RepositoryException e)
+        {
+            super.save(entity.get());
+            throw e;
+        }
     }
 
     @Override
     public void update(E entity) {
         validator.validate(entity);
+        Optional<E> oldEntity = super.findOne(entity.getId());
+        if(oldEntity.isEmpty())
+        {
+            throw new IllegalArgumentException("Invalid entity");
+        }
         super.update(entity);
-        writeToFile();
+        try
+        {
+            writeToFile();
+        }
+        catch (RepositoryException e)
+        {
+            super.update(oldEntity.get());
+            throw e;
+        }
     }
 }

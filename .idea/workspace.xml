@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="148da239-8fb1-4410-9337-ed41f3d5d191" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/repository/RepositoryFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/repository/RepositoryType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/repository/AbstractFileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/repository/AbstractFileRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,7 +14,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="142" />
+    <option name="cachedIndexableFilesCount" value="155" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -41,61 +39,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000331645175355" />
-      <entry key="MS500" value="1.131647238528033" />
-      <entry key="S2" value="1.9791324244818345" />
-      <entry key="S5" value="2.8301395425323874" />
-      <entry key="S10" value="3.324298598454271" />
-      <entry key="S30" value="3.7511695140331685" />
-      <entry key="S60" value="3.956523029183753" />
-      <entry key="M2" value="5.452367699615935" />
-      <entry key="M5" value="17.58853549371826" />
-      <entry key="M10" value="48.610770354728864" />
-      <entry key="M15" value="81.97861417400584" />
-      <entry key="M30" value="166.33248476585965" />
-      <entry key="H1" value="291.6018105321146" />
-      <entry key="H2" value="502.89216315917065" />
-      <entry key="H4" value="831.2508062692219" />
-      <entry key="D1" value="1769.743102996026" />
-      <entry key="W1" value="2141.5223188867667" />
+      <entry key="MS100" value="2.1675776011763793E-171" />
+      <entry key="MS500" value="1.0641125821610448E-34" />
+      <entry key="S2" value="5.578648654799344E-9" />
+      <entry key="S5" value="0.0010150650480870583" />
+      <entry key="S10" value="0.07773057905836683" />
+      <entry key="S30" value="1.811622365053556" />
+      <entry key="S60" value="4.98117116281121" />
+      <entry key="M2" value="11.149019857712382" />
+      <entry key="M5" value="26.711864665675176" />
+      <entry key="M10" value="54.066449767150246" />
+      <entry key="M15" value="84.45053862756565" />
+      <entry key="M30" value="172.23763483513932" />
+      <entry key="H1" value="311.4844553586327" />
+      <entry key="H2" value="536.7140638246746" />
+      <entry key="H4" value="879.392596897646" />
+      <entry key="D1" value="1858.7104390789873" />
+      <entry key="W1" value="2248.7190915603255" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="1.918817679974581E-83" />
-      <entry key="S2" value="4.0474052534852175E-21" />
-      <entry key="S5" value="1.4996906360034357E-8" />
-      <entry key="S10" value="2.4198502604049678E-4" />
-      <entry key="S30" value="0.15969958201540727" />
-      <entry key="S60" value="1.0032329087048402" />
-      <entry key="M2" value="3.7439336504362184" />
-      <entry key="M5" value="10.732073581702338" />
-      <entry key="M10" value="16.86270895859004" />
-      <entry key="M15" value="21.88119206766909" />
-      <entry key="M30" value="36.449116701358626" />
-      <entry key="H1" value="66.20201030539056" />
-      <entry key="H2" value="132.19225478024805" />
-      <entry key="H4" value="239.61676763672534" />
-      <entry key="D1" value="496.0057050983789" />
-      <entry key="W1" value="580.7819207241356" />
+      <entry key="MS100" value="1.0000000000001652" />
+      <entry key="MS500" value="1.0027774949425532" />
+      <entry key="S2" value="1.2295690462668252" />
+      <entry key="S5" value="1.5559652843395773" />
+      <entry key="S10" value="1.8063008782756627" />
+      <entry key="S30" value="3.28353646182655" />
+      <entry key="S60" value="5.7602512484846695" />
+      <entry key="M2" value="10.194741853091704" />
+      <entry key="M5" value="19.271667203273726" />
+      <entry key="M10" value="28.345446200009487" />
+      <entry key="M15" value="35.19903802040289" />
+      <entry key="M30" value="52.25785145712809" />
+      <entry key="H1" value="83.38949590666915" />
+      <entry key="H2" value="149.2754939508831" />
+      <entry key="H4" value="258.3366745288776" />
+      <entry key="D1" value="525.9687971759175" />
+      <entry key="W1" value="615.7692608250628" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.26980706248352904" />
-      <entry key="MS500" value="0.7910452020053159" />
-      <entry key="S2" value="1.6073760850054772" />
-      <entry key="S5" value="2.5712402866683908" />
-      <entry key="S10" value="3.164463827427171" />
-      <entry key="S30" value="3.843515055816989" />
-      <entry key="S60" value="4.9076654349268045" />
-      <entry key="M2" value="9.137094799247414" />
-      <entry key="M5" value="28.26243925163842" />
-      <entry key="M10" value="65.42822101402561" />
-      <entry key="M15" value="103.81899894354214" />
-      <entry key="M30" value="202.7432400810668" />
-      <entry key="H1" value="357.7664383385831" />
-      <entry key="H2" value="635.046723661226" />
-      <entry key="H4" value="1070.8324795496478" />
-      <entry key="D1" value="2265.735574798194" />
-      <entry key="W1" value="2722.301965061962" />
+      <entry key="MS100" value="5.455503603868302E-4" />
+      <entry key="MS500" value="0.2228515158411125" />
+      <entry key="S2" value="0.8218619895213465" />
+      <entry key="S5" value="1.311068653741278" />
+      <entry key="S10" value="1.7283161647273668" />
+      <entry key="S30" value="4.980424285647686" />
+      <entry key="S60" value="10.633874568065117" />
+      <entry key="M2" value="21.2374960150628" />
+      <entry key="M5" value="45.888372147629866" />
+      <entry key="M10" value="82.33659232798188" />
+      <entry key="M15" value="119.58533631721231" />
+      <entry key="M30" value="224.44431873280092" />
+      <entry key="H1" value="394.82998583177624" />
+      <entry key="H2" value="685.948644566322" />
+      <entry key="H4" value="1137.6923978798518" />
+      <entry key="D1" value="2384.665445550531" />
+      <entry key="W1" value="2864.4859791903186" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -110,46 +108,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
-    &quot;JUnit.CommunityServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.FriendshipServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.InMemoryRepositoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserValidatorTest.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;lab3&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/MAP/Labs/Lab2/ReteaDeSocializare/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
+    "JUnit.All in ReteaDeSocializare.executor": "Run",
+    "JUnit.CommunityServiceTest.executor": "Run",
+    "JUnit.FriendshipServiceTest.executor": "Run",
+    "JUnit.InMemoryRepositoryTest.executor": "Run",
+    "JUnit.UserServiceTest.executor": "Run",
+    "JUnit.UserValidatorTest.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "lab3",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "D:/MAP/Labs/Lab2/ReteaDeSocializare/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
+    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
-  <component name="RunManager">
+}]]></component>
+  <component name="RunManager" selected="JUnit.All in ReteaDeSocializare">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="UNNAMED_CLASS_CONFIGURATION" value="true" />
       <option name="MAIN_CLASS_NAME" value="Main" />
@@ -158,8 +157,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="All in ReteaDeSocializare" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ReteaDeSocializare" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.All in ReteaDeSocializare" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
