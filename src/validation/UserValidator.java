@@ -9,19 +9,19 @@ public class UserValidator implements Validator<User>{
     public void validate(User entity) {
         if(entity == null)
         {
-            throw new IllegalArgumentException("User cannot be null!");
+            throw new ValidationException("User cannot be null!");
         }
         if(entity.getId() == null || entity.getId() <= 0L)
         {
-            throw new IllegalArgumentException("ID must be positive and cannot be null!");
+            throw new ValidationException("ID must be positive and cannot be null!");
         }
 
         if (entity.getFirstName() == null || entity.getFirstName().isBlank()) {
-            throw new IllegalArgumentException("First name cannot be empty!");
+            throw new ValidationException("First name cannot be empty!");
         }
 
         if (entity.getLastName() == null || entity.getLastName().isBlank()) {
-            throw new IllegalArgumentException("Last name cannot be empty!");
+            throw new ValidationException("Last name cannot be empty!");
         }
         if (entity.getFirstName().contains(";") ||
                 entity.getLastName().contains(";") ||
@@ -30,7 +30,7 @@ public class UserValidator implements Validator<User>{
                 entity.getFirstName().contains("\r") ||
                 entity.getLastName().contains("\r")) {
 
-            throw new IllegalArgumentException(
+            throw new ValidationException(
                     "Names cannot contain semicolons or line breaks!"
             );
         }

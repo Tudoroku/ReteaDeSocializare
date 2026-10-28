@@ -1,6 +1,7 @@
 package ui;
 
 import domain.User;
+import repository.RepositoryException;
 import service.CommunityService;
 import service.FriendshipService;
 import service.UserService;
@@ -50,7 +51,7 @@ public class ConsoleUI implements UI{
             {
                 System.out.println("Invalid number!");
             }
-            catch(IllegalArgumentException e)
+            catch(IllegalArgumentException | RepositoryException | UnsupportedOperationException e)
             {
                 System.out.println("Error: " + e.getMessage());
             }

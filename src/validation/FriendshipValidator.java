@@ -18,7 +18,7 @@ public class FriendshipValidator implements Validator<Friendship> {
     @Override
     public void validate(Friendship entity) {
         if (entity == null) {
-            throw new IllegalArgumentException("Friendship cannot be null!");
+            throw new ValidationException("Friendship cannot be null!");
         }
 
         Long id1 = entity.getId().firstId();
@@ -26,7 +26,7 @@ public class FriendshipValidator implements Validator<Friendship> {
 
         if (userRepo.findOne(id1).isEmpty() ||
                 userRepo.findOne(id2).isEmpty()) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
                     "Both users must exist to create a friendship!"
             );
         }

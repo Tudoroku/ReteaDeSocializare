@@ -3,6 +3,8 @@ package repository;
 
 import domain.Friendship;
 import domain.User;
+import repository.db.FriendshipDbRepository;
+import repository.db.UserDbRepository;
 import repository.file.FriendshipFileRepository;
 import repository.file.UserFileRepository;
 import validation.Validator;
@@ -66,9 +68,25 @@ public class RepositoryFactory {
                 return new UserFileRepository(filename.trim(), validator);
 
             case DATABASE:
-                throw new UnsupportedOperationException(
-                        "Database repositories are not implemented yet"
-                );
+                String url = properties.getProperty("db.url");
+                String user = properties.getProperty("db.user");
+                String password = properties.getProperty("db.password");
+
+                if(url == null || url.isBlank())
+                {
+                    throw new IllegalArgumentException("Missing db.url in config.properties!");
+                }
+                if(user == null || user.isBlank())
+                {
+                    throw new IllegalArgumentException("Missing db.user in config.properties!");
+                }
+                if (password == null) {
+                    throw new IllegalArgumentException(
+                            "Missing db.password in config.properties!"
+                    );
+                }
+
+                return new UserDbRepository(validator, url, user, password);
 
             default:
                 throw new IllegalArgumentException(
@@ -88,16 +106,32 @@ public class RepositoryFactory {
 
                 if (filename == null || filename.isBlank()) {
                     throw new IllegalArgumentException(
-                            "Missing users.file in config.properties!"
+                            "Missing friendships.file in config.properties!"
                     );
                 }
 
                 return new FriendshipFileRepository(filename.trim(), validator);
 
             case DATABASE:
-                throw new UnsupportedOperationException(
-                        "Database repositories are not implemented yet"
-                );
+                String url = properties.getProperty("db.url");
+                String user = properties.getProperty("db.user");
+                String password = properties.getProperty("db.password");
+
+                if(url == null || url.isBlank())
+                {
+                    throw new IllegalArgumentException("Missing db.url in config.properties!");
+                }
+                if(user == null || user.isBlank())
+                {
+                    throw new IllegalArgumentException("Missing db.user in config.properties!");
+                }
+                if (password == null) {
+                    throw new IllegalArgumentException(
+                            "Missing db.password in config.properties!"
+                    );
+                }
+
+                return new FriendshipDbRepository(validator, url, user, password);
 
             default:
                 throw new IllegalArgumentException(
