@@ -3,6 +3,8 @@ package repository;
 
 import domain.Friendship;
 import domain.User;
+import repository.file.FriendshipFileRepository;
+import repository.file.UserFileRepository;
 import validation.Validator;
 
 import java.io.IOException;
@@ -47,15 +49,60 @@ public class RepositoryFactory {
             );
         }
     }
-    public UserRepository createUserRepository(
-            Validator<User> validator) {
-        // TODO
-        return null;
+    public UserRepository createUserRepository(Validator<User> validator) {
+        switch (type) {
+            case MEMORY:
+                return new InMemoryUserRepository();
+
+            case FILE:
+                String filename = properties.getProperty("users.file");
+
+                if (filename == null || filename.isBlank()) {
+                    throw new IllegalArgumentException(
+                            "Missing users.file in config.properties!"
+                    );
+                }
+
+                return new UserFileRepository(filename.trim(), validator);
+
+            case DATABASE:
+                throw new UnsupportedOperationException(
+                        "Database repositories are not implemented yet"
+                );
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown repository type: " + type
+                );
+        }
     }
 
-    public FriendshipRepository createFriendshipRepository(
-            Validator<Friendship> validator) {
-        // TODO
-        return null;
+    public FriendshipRepository createFriendshipRepository(Validator<Friendship> validator)
+    {
+        switch (type) {
+            case MEMORY:
+                return new InMemoryFriendshipRepository();
+
+            case FILE:
+                String filename = properties.getProperty("friendships.file");
+
+                if (filename == null || filename.isBlank()) {
+                    throw new IllegalArgumentException(
+                            "Missing users.file in config.properties!"
+                    );
+                }
+
+                return new FriendshipFileRepository(filename.trim(), validator);
+
+            case DATABASE:
+                throw new UnsupportedOperationException(
+                        "Database repositories are not implemented yet"
+                );
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown repository type: " + type
+                );
+        }
     }
 }

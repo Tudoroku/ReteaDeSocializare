@@ -7,14 +7,14 @@ import validation.*;
 public class Main {
   public static void main(String[] args) {
 
-    // repos
-    UserRepository userRepo = new InMemoryUserRepository();
-    FriendshipRepository friendshipRepo = new InMemoryFriendshipRepository();
+    // repos and validators
+    RepositoryFactory repoFactory = new RepositoryFactory();
 
-    // validator
     UserValidator userValidator = new UserValidator();
-    Validator<Friendship> friendshipValidator =
-            new FriendshipValidator(userRepo);
+    UserRepository userRepo = repoFactory.createUserRepository(userValidator);
+
+    Validator<Friendship> friendshipValidator = new FriendshipValidator(userRepo);
+    FriendshipRepository friendshipRepo = repoFactory.createFriendshipRepository(friendshipValidator);
 
     // services
     UserService userService = new UserService(
