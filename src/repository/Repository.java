@@ -49,6 +49,8 @@ public interface Repository<ID, E extends HasId<ID>> {
      * Replaces the stored entity with the same identifier.
      * @param entity the replacement; acceptance rules depend on the implementation
      * @throws validation.ValidationException if an installed validator rejects the entity
+     * @throws IllegalArgumentException if repository argument checks reject
+     * the entity or its ID, or no entity exists with that ID
      * @throws RepositoryException if persistence fails
      * @throws UnsupportedOperationException if replacement is not implemented
      */

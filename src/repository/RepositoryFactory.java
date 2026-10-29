@@ -20,8 +20,8 @@ import java.util.Properties;
  * {@code src/main/resources/config.properties} relative to the working directory.
  * Reads configuration once per factory. MEMORY ignores validators; FILE passes
  * them to repositories that load immediately; DATABASE creates placeholders and
- * does not open a connection. Configuration values used as paths or connection
- * settings are trimmed, except the database password.
+ * does not open a connection. The repository type and file paths are trimmed.
+ *  Database connection settings are passed to constructors without trimming.
  */
 public class RepositoryFactory {
 
