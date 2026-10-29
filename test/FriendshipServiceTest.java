@@ -1,6 +1,7 @@
 import domain.FriendshipId;
 import domain.User;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import repository.InMemoryFriendshipRepository;
 import repository.InMemoryUserRepository;
 import service.FriendshipService;
@@ -33,9 +34,13 @@ public class FriendshipServiceTest {
         userRepo.save(user2);
 
         // Test valid friendship
-        assertDoesNotThrow(() ->
+        assertDoesNotThrow(new Executable()
         {
-            service.addFriendship(1L, 2L);
+            @Override
+            public void execute()
+            {
+                service.addFriendship(1L, 2L);
+            }
         });
 
         assertTrue(
@@ -43,15 +48,23 @@ public class FriendshipServiceTest {
         );
 
         // Test duplicate friendship with reversed IDs
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.addFriendship(2L, 1L);
+            @Override
+            public void execute()
+            {
+                service.addFriendship(2L, 1L);
+            }
         });
 
         // Test friendship with nonexistent user
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.addFriendship(1L, 99L);
+            @Override
+            public void execute()
+            {
+                service.addFriendship(1L, 99L);
+            }
         });
 
         assertTrue(
@@ -59,15 +72,23 @@ public class FriendshipServiceTest {
         );
 
         // Test friendship with same user
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.addFriendship(1L, 1L);
+            @Override
+            public void execute()
+            {
+                service.addFriendship(1L, 1L);
+            }
         });
 
         // Test null ID
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.addFriendship(null, 2L);
+            @Override
+            public void execute()
+            {
+                service.addFriendship(null, 2L);
+            }
         });
 
         // Test that original friendship still exists
@@ -101,9 +122,13 @@ public class FriendshipServiceTest {
         service.addFriendship(1L, 2L);
 
         // Test delete existing friendship with reversed IDs
-        assertDoesNotThrow(() ->
+        assertDoesNotThrow(new Executable()
         {
-            service.deleteFriendship(2L, 1L);
+            @Override
+            public void execute()
+            {
+                service.deleteFriendship(2L, 1L);
+            }
         });
 
         assertTrue(
@@ -111,15 +136,23 @@ public class FriendshipServiceTest {
         );
 
         // Test delete nonexistent friendship
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.deleteFriendship(1L, 2L);
+            @Override
+            public void execute()
+            {
+                service.deleteFriendship(1L, 2L);
+            }
         });
 
         // Test delete with invalid IDs
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.deleteFriendship(1L, 1L);
+            @Override
+            public void execute()
+            {
+                service.deleteFriendship(1L, 1L);
+            }
         });
 
         // Verify users were not deleted

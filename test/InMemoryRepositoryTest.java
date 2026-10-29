@@ -1,5 +1,6 @@
 import domain.User;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import repository.InMemoryRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,10 +35,24 @@ public class InMemoryRepositoryTest {
                 "Popescu"
         );
 
-        assertThrows(IllegalArgumentException.class, () -> repo.save(user1));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.save(user1);
+            }
+        });
 
         //Test save null entity
-        assertThrows(IllegalArgumentException.class, () -> repo.save(null));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.save(null);
+            }
+        });
 
         //Test save null id
         User nullUser = new User(
@@ -45,7 +60,14 @@ public class InMemoryRepositoryTest {
                 "null",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () -> repo.save(nullUser));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.save(nullUser);
+            }
+        });
     }
 
     @Test
@@ -84,7 +106,14 @@ public class InMemoryRepositoryTest {
         assertFalse(repo.findAll().iterator().hasNext());
 
         //Test delete on invalid ID
-        assertThrows(IllegalArgumentException.class, () -> repo.delete(1L));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.delete(1L);
+            }
+        });
     }
 
     @Test
@@ -119,10 +148,24 @@ public class InMemoryRepositoryTest {
                 "Popescu"
         );
 
-        assertThrows(IllegalArgumentException.class, () -> repo.update(user2));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.update(user2);
+            }
+        });
 
         //Test update on null entity
-        assertThrows(IllegalArgumentException.class, () -> repo.update(null));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.update(null);
+            }
+        });
 
         //Test update on null ID
         User nullUser = new User(
@@ -130,7 +173,14 @@ public class InMemoryRepositoryTest {
                 "null",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () -> repo.update(nullUser));
+        assertThrows(IllegalArgumentException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                repo.update(nullUser);
+            }
+        });
     }
 
     @Test
@@ -173,7 +223,14 @@ public class InMemoryRepositoryTest {
         Iterator<User> it = repo.findAll().iterator();
         it.next();
 
-        assertThrows(UnsupportedOperationException.class, it::remove);
+        assertThrows(UnsupportedOperationException.class, new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                it.remove();
+            }
+        });
 
     }
 

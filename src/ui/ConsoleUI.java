@@ -80,14 +80,28 @@ public class ConsoleUI implements UI{
     {
         switch(command)
         {
-            case 1 -> addUser();
-            case 2 -> deleteUser();
-            case 3 -> addFriendship();
-            case 4 -> deleteFriendship();
-            case 5 -> showNumberOfCommunities();
-            case 6 -> showMostSociableCommunity();
+            case 1:
+                addUser();
+                break;
+            case 2:
+                deleteUser();
+                break;
+            case 3:
+                addFriendship();
+                break;
+            case 4:
+                deleteFriendship();
+                break;
+            case 5:
+                showNumberOfCommunities();
+                break;
+            case 6:
+                showMostSociableCommunity();
+                break;
 
-            default -> System.out.println("Invalid command!");
+            default:
+                System.out.println("Invalid command!");
+                break;
         }
     }
 

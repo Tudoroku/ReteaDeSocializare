@@ -18,8 +18,13 @@ public class UserValidatorTest {
                     "Gheorghe",
                     "Popescu"
             );
-        assertDoesNotThrow(() -> {
-            validator.validate(user);
+        assertDoesNotThrow(new Executable()
+        {
+            @Override
+            public void execute()
+            {
+                validator.validate(user);
+            }
         });
         assertEquals("Gheorghe", user.getFirstName());
         assertEquals("Popescu", user.getLastName());
@@ -29,9 +34,13 @@ public class UserValidatorTest {
     void testNullUserValidation()
     {
         User user = null;
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user);
+            @Override
+            public void execute()
+            {
+                validator.validate(user);
+            }
         });
     }
 
@@ -44,9 +53,13 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user1);
+            @Override
+            public void execute()
+            {
+                validator.validate(user1);
+            }
         });
 
         //Test id == 0
@@ -55,9 +68,13 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user2);
+            @Override
+            public void execute()
+            {
+                validator.validate(user2);
+            }
         });
 
         //Test negative id
@@ -66,9 +83,13 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user3);
+            @Override
+            public void execute()
+            {
+                validator.validate(user3);
+            }
         });
     }
 
@@ -81,9 +102,13 @@ public class UserValidatorTest {
                 null,
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user1);
+            @Override
+            public void execute()
+            {
+                validator.validate(user1);
+            }
         });
 
         //Test empty first name
@@ -92,9 +117,13 @@ public class UserValidatorTest {
                 "",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user2);
+            @Override
+            public void execute()
+            {
+                validator.validate(user2);
+            }
         });
 
         //Test blank first name (with spaces)
@@ -103,9 +132,13 @@ public class UserValidatorTest {
                 "     ",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-            validator.validate(user3);
+            @Override
+            public void execute()
+            {
+                validator.validate(user3);
+            }
         });
     }
 

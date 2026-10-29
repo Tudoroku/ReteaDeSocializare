@@ -30,9 +30,13 @@ public class UserServiceTest {
                 "Popescu"
         );
 
-        assertDoesNotThrow(() ->
+        assertDoesNotThrow(new Executable()
         {
-            service.addUser(chris);
+            @Override
+            public void execute()
+            {
+                service.addUser(chris);
+            }
         });
         assertSame(chris, repo.findOne(1L).orElseThrow());
 
@@ -45,9 +49,13 @@ public class UserServiceTest {
 
         var snapshot = repo.findAll();
 
-        assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, new Executable()
         {
-           service.addUser(stacy);
+            @Override
+            public void execute()
+            {
+                service.addUser(stacy);
+            }
         });
 
         assertEquals(snapshot, repo.findAll());
@@ -58,9 +66,13 @@ public class UserServiceTest {
                 "Popescu"
         );
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-           service.addUser(bernard);
+            @Override
+            public void execute()
+            {
+                service.addUser(bernard);
+            }
         });
         assertSame(chris, repo.findOne(1L).orElseThrow());
     }
@@ -139,9 +151,13 @@ public class UserServiceTest {
         friendshipRepo.save(new Friendship(2L, 3L));
 
         // Test delete existing user
-        assertDoesNotThrow(() ->
+        assertDoesNotThrow(new Executable()
         {
-            service.deleteUser(1L);
+            @Override
+            public void execute()
+            {
+                service.deleteUser(1L);
+            }
         });
 
         // Verificare utilizator sters
@@ -166,9 +182,13 @@ public class UserServiceTest {
         assertSame(user3, repo.findOne(3L).orElseThrow());
 
         // Test delete nonexistent user
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(IllegalArgumentException.class, new Executable()
         {
-            service.deleteUser(99L);
+            @Override
+            public void execute()
+            {
+                service.deleteUser(99L);
+            }
         });
     }
 
