@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import repository.InMemoryUserRepository;
 import validation.FriendshipValidator;
+import validation.ValidationException;
 
 import java.time.LocalDateTime;
 
@@ -42,7 +43,7 @@ public class FriendshipValidatorTest {
     void testNullFriendshipValidation()
     {
         var validator = new FriendshipValidator(new InMemoryUserRepository());
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()
@@ -66,7 +67,7 @@ public class FriendshipValidatorTest {
             var validator = new FriendshipValidator(userRepo);
             var snapshot = userRepo.findAll();
 
-            assertThrows(IllegalArgumentException.class, new Executable()
+            assertThrows(ValidationException.class, new Executable()
             {
                 @Override
                 public void execute()
@@ -89,7 +90,7 @@ public class FriendshipValidatorTest {
         validator.validate(friendship);
         userRepo.delete(2L);
 
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()

@@ -12,6 +12,7 @@ import service.CommunityService;
 import service.FriendshipService;
 import service.UserService;
 import validation.FriendshipValidator;
+import validation.ValidationException;
 import validation.UserValidator;
 
 import java.io.IOException;
@@ -255,7 +256,10 @@ public class FriendshipFileRepositoryTest {
         };
         for(Friendship friendship : invalidSaves)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            // The reversed friendship is valid but duplicates the existing pair.
+            var expectedException = friendship != null && original.getId().equals(friendship.getId())
+                    ? IllegalArgumentException.class : ValidationException.class;
+            assertThrows(expectedException, new Executable()
             {
                 @Override
                 public void execute()
@@ -272,7 +276,10 @@ public class FriendshipFileRepositoryTest {
         };
         for(Friendship friendship : invalidUpdates)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            // Users 1 and 4 exist, but their friendship does not.
+            var expectedException = friendship != null && new FriendshipId(1L, 4L).equals(friendship.getId())
+                    ? IllegalArgumentException.class : ValidationException.class;
+            assertThrows(expectedException, new Executable()
             {
                 @Override
                 public void execute()
@@ -312,7 +319,7 @@ public class FriendshipFileRepositoryTest {
     {
         Path file = tempDir.resolve("missing/friendships.txt");
         var repo = new FriendshipFileRepository(file.toString(), validator);
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()
@@ -350,7 +357,7 @@ public class FriendshipFileRepositoryTest {
         byte[] contents = Files.readAllBytes(file);
         userRepo.delete(2L);
 
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()

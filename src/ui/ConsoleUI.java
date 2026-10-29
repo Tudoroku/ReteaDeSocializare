@@ -5,6 +5,7 @@ import repository.RepositoryException;
 import service.CommunityService;
 import service.FriendshipService;
 import service.UserService;
+import validation.ValidationException;
 
 import java.util.Scanner;
 
@@ -51,7 +52,8 @@ public class ConsoleUI implements UI{
             {
                 System.out.println("Invalid number!");
             }
-            catch(IllegalArgumentException | RepositoryException | UnsupportedOperationException e)
+            catch(IllegalArgumentException | RepositoryException | UnsupportedOperationException |
+                    ValidationException e)
             {
                 System.out.println("Error: " + e.getMessage());
             }

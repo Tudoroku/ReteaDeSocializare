@@ -2,6 +2,7 @@
 package repository;
 
 import domain.HasId;
+import validation.ValidationException;
 import validation.Validator;
 
 import java.io.BufferedReader;
@@ -56,7 +57,7 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
                     validator.validate(entity);
                     super.save(entity);
                 }
-                catch (IllegalArgumentException | DateTimeParseException e) {
+                catch (IllegalArgumentException | ValidationException | DateTimeParseException e) {
                     System.err.println(
                             "Invalid line " + lineNumber +
                                     " in " + filePath + ": " + e.getMessage()

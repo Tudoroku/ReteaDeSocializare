@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import repository.RepositoryException;
 import repository.file.UserFileRepository;
 import validation.UserValidator;
+import validation.ValidationException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -204,7 +205,10 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUsers)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            // The valid user with ID 1 is rejected as a duplicate, not by validation.
+            var expectedException = user != null && Long.valueOf(1L).equals(user.getId())
+                    ? IllegalArgumentException.class : ValidationException.class;
+            assertThrows(expectedException, new Executable()
             {
                 @Override
                 public void execute()
@@ -226,7 +230,10 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUpdates)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            // The valid user with ID 2 passes validation but does not exist.
+            var expectedException = user != null && Long.valueOf(2L).equals(user.getId())
+                    ? IllegalArgumentException.class : ValidationException.class;
+            assertThrows(expectedException, new Executable()
             {
                 @Override
                 public void execute()
@@ -261,7 +268,7 @@ public class UserFileRepositoryTest {
     {
         Path file = tempDir.resolve("missing/users.txt");
         var repo = new UserFileRepository(file.toString(), new UserValidator());
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()
@@ -410,7 +417,7 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUsers)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            assertThrows(ValidationException.class, new Executable()
             {
                 @Override
                 public void execute()
@@ -459,7 +466,7 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUsers)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            assertThrows(ValidationException.class, new Executable()
             {
                 @Override
                 public void execute()

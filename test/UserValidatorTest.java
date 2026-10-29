@@ -2,6 +2,7 @@ import domain.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import validation.UserValidator;
+import validation.ValidationException;
 import validation.Validator;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +29,7 @@ public class UserValidatorTest {
     void testNullUserValidation()
     {
         User user = null;
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user);
         });
@@ -43,7 +44,7 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user1);
         });
@@ -54,7 +55,7 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user2);
         });
@@ -65,7 +66,7 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user3);
         });
@@ -80,7 +81,7 @@ public class UserValidatorTest {
                 null,
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user1);
         });
@@ -91,7 +92,7 @@ public class UserValidatorTest {
                 "",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user2);
         });
@@ -102,7 +103,7 @@ public class UserValidatorTest {
                 "     ",
                 "Popescu"
         );
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
             validator.validate(user3);
         });
@@ -117,7 +118,7 @@ public class UserValidatorTest {
                 "Sebastian",
                 null
         );
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()
@@ -132,7 +133,7 @@ public class UserValidatorTest {
                 "Sebastian",
                 ""
         );
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()
@@ -147,7 +148,7 @@ public class UserValidatorTest {
                 "Sebastian",
                 " \t\n "
         );
-        assertThrows(IllegalArgumentException.class, new Executable()
+        assertThrows(ValidationException.class, new Executable()
         {
             @Override
             public void execute()

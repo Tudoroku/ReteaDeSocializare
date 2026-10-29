@@ -10,6 +10,7 @@ import repository.InMemoryFriendshipRepository;
 import repository.InMemoryUserRepository;
 import service.UserService;
 import validation.UserValidator;
+import validation.ValidationException;
 
 
 public class UserServiceTest {
@@ -44,7 +45,7 @@ public class UserServiceTest {
 
         var snapshot = repo.findAll();
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
         {
            service.addUser(stacy);
         });
@@ -87,7 +88,7 @@ public class UserServiceTest {
 
         for(User user : invalidUsers)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
+            assertThrows(ValidationException.class, new Executable()
             {
                 @Override
                 public void execute()
