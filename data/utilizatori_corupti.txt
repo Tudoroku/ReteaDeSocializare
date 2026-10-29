@@ -1,0 +1,6 @@
+1;Ana;Popescu
+linie-invalida
+abc;Ion;Marin
+2;;Ionescu
+1;Duplicat;Utilizator
+3;Mara;Radu
