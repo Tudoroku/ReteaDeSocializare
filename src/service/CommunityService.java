@@ -5,15 +5,33 @@ import repository.UserRepository;
 
 import java.util.*;
 
+/**
+ * Derives undirected communities from the current user and friendship repositories.
+ * Isolated users form single-member communities. Analysis does not mutate stored
+ * entities and assumes every friendship endpoint is present among the users.
+ */
 public class CommunityService {
     private final UserRepository userRepo;
     private final FriendshipRepository friendshipRepo;
 
+    /**
+     * Stores repositories without validating dependencies or graph consistency.
+     * @param userRepo the repository supplying graph vertices
+     * @param friendshipRepo the repository supplying graph edges
+     */
     public CommunityService(UserRepository userRepo, FriendshipRepository friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
 
+    /**
+     * Builds fresh mutable adjacency sets from the current repository contents.
+     * Adds both directions for each friendship; repeated edges collapse in sets.
+     * @return a mutable user-ID to neighbor-ID map, empty when both repositories are empty
+     * @throws NullPointerException if a dependency is null or a friendship refers
+     *         to a user missing from the graph
+     * @throws UnsupportedOperationException if repository retrieval is not implemented
+     */
     public Map<Long, Set<Long>> buildGraph() {
         Map<Long, Set<Long>> graph = new HashMap<>();
 
@@ -54,6 +72,13 @@ public class CommunityService {
         return component;
     }
 
+    /**
+     * Computes connected components of a newly built graph.
+     * @return a fresh mutable list of mutable ID sets, empty for an empty network;
+     *         component and member order are unspecified
+     * @throws NullPointerException if dependencies or friendship endpoints are missing
+     * @throws UnsupportedOperationException if repository retrieval is not implemented
+     */
     public List<Set<Long>> getCommunities()
     {
         var graph = buildGraph();
@@ -70,6 +95,12 @@ public class CommunityService {
         return communities;
     }
 
+    /**
+     * Recomputes the connected components and counts them.
+     * @return the number of components, including isolated users; zero for an empty network
+     * @throws NullPointerException if dependencies or friendship endpoints are missing
+     * @throws UnsupportedOperationException if repository retrieval is not implemented
+     */
     public int getNumberOfCommunities()
     {
         return getCommunities().size();
@@ -96,6 +127,17 @@ public class CommunityService {
         return maxLength;
     }
 
+    /**
+     * Selects the component containing the longest simple path, measured in edges.
+     * Ties retain the first encountered component, whose iteration order is
+     * unspecified. Builds the graph and components in separate repository reads,
+     * so they must describe the same network during this call.
+     * @return the selected mutable component set, or an unmodifiable empty set
+     *         when there are no users
+     * @throws NullPointerException if dependencies or friendship endpoints are missing,
+     *         or the separate reads produce incompatible graphs
+     * @throws UnsupportedOperationException if repository retrieval is not implemented
+     */
     public Set<Long> getMostSociableCommunity()
     {
         var graph = buildGraph();

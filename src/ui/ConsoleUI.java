@@ -9,18 +9,39 @@ import validation.ValidationException;
 
 import java.util.Scanner;
 
+/**
+ * Runs a text menu on standard input and output, delegating operations to services.
+ * The scanner is created with the instance and is not closed by this class.
+ */
 public class ConsoleUI implements UI{
     private final CommunityService communityService;
     private final FriendshipService friendshipService;
     private final UserService userService;
     private final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Stores services without checking them for null.
+     * @param communityService the service for community queries
+     * @param friendshipService the service for friendship creation and deletion
+     * @param userService the service for user creation and deletion
+     */
     public ConsoleUI(CommunityService communityService, FriendshipService friendshipService, UserService userService) {
         this.communityService = communityService;
         this.friendshipService = friendshipService;
         this.userService = userService;
     }
 
+    /**
+     * {@inheritDoc}
+     * Displays the menu repeatedly until command zero or end-of-input at the
+     * command prompt, then prints a farewell. Number-format, argument, repository,
+     * unsupported-operation and validation errors inside the loop are printed and
+     * interaction continues. Unknown commands print a message. Other unchecked
+     * errors propagate; end-of-input while entering operation fields is not caught.
+     * @throws java.util.NoSuchElementException if input ends while an operation reads a field
+     * @throws IllegalStateException if the scanner has been closed
+     * @throws NullPointerException if a selected operation requires a null service
+     */
     @Override
     public void start()
     {

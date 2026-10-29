@@ -3,8 +3,21 @@ package validation;
 import domain.User;
 
 
+/**
+ * Validates user IDs and names without modifying the user. Instances have no
+ * configuration and can be created with the implicit public constructor.
+ */
 public class UserValidator implements Validator<User>{
     private static final int MAX_AGE_YEARS = 150;
+    /**
+     * {@inheritDoc}
+     * Requires a positive ID and non-null, nonblank names. Names must not contain
+     * semicolons, carriage returns or newlines; other surrounding whitespace is
+     * not trimmed. Checks stop at the first violation.
+     * @param entity the non-null user to check
+     * @throws ValidationException if the user is null, its ID is null or
+     *         nonpositive, or either name violates these rules
+     */
     @Override
     public void validate(User entity) {
         if(entity == null)

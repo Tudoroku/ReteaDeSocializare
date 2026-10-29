@@ -15,11 +15,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+/**
+ * Selects repository implementations from
+ * {@code src/main/resources/config.properties} relative to the working directory.
+ * Reads configuration once per factory. MEMORY ignores validators; FILE passes
+ * them to repositories that load immediately; DATABASE creates placeholders and
+ * does not open a connection. Configuration values used as paths or connection
+ * settings are trimmed, except the database password.
+ */
 public class RepositoryFactory {
 
     private final Properties properties;
     private final RepositoryType type;
 
+    /**
+     * Loads properties and selects the case-sensitive {@code repository.type}.
+     * Other settings are checked when creating the corresponding repository.
+     * @throws RepositoryException if the configuration file cannot be read or closed
+     * @throws IllegalArgumentException if the type is missing, blank or unknown,
+     *         or the properties file contains a malformed Unicode escape
+     */
     public RepositoryFactory() {
         properties = new Properties();
 
@@ -51,6 +66,20 @@ public class RepositoryFactory {
             );
         }
     }
+    /**
+     * Creates a new user repository for the configured storage type.
+     * FILE requires a nonblank {@code users.file}. DATABASE requires nonblank
+     * {@code db.url} and {@code db.user}, and a present {@code db.password}
+     * (an empty password is accepted).
+     * @param validator the user validator; required only for FILE, ignored by
+     *        MEMORY and merely stored by DATABASE
+     * @return a new empty MEMORY repository, immediately loaded FILE repository,
+     *         or unimplemented DATABASE repository
+     * @throws IllegalArgumentException if a required setting is missing or blank,
+     *         or the configured file path is invalid
+     * @throws NullPointerException if FILE is selected and validator is null
+     * @throws RepositoryException if a FILE repository cannot read its data
+     */
     public UserRepository createUserRepository(Validator<User> validator) {
         switch (type) {
             case MEMORY:
@@ -95,6 +124,20 @@ public class RepositoryFactory {
         }
     }
 
+    /**
+     * Creates a new friendship repository for the configured storage type.
+     * FILE requires a nonblank {@code friendships.file}. DATABASE requires nonblank
+     * {@code db.url} and {@code db.user}, and a present {@code db.password}.
+     * The caller supplies a validator linked to the appropriate users, if needed.
+     * @param validator the friendship validator; required only for FILE, ignored
+     *        by MEMORY and merely stored by DATABASE
+     * @return a new empty MEMORY repository, immediately loaded FILE repository,
+     *         or unimplemented DATABASE repository
+     * @throws IllegalArgumentException if a required setting is missing or blank,
+     *         or the configured file path is invalid
+     * @throws NullPointerException if FILE is selected and validator is null
+     * @throws RepositoryException if a FILE repository cannot read its data
+     */
     public FriendshipRepository createFriendshipRepository(Validator<Friendship> validator)
     {
         switch (type) {
