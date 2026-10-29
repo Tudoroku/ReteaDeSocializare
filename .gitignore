@@ -31,3 +31,5 @@ bin/
 
 # IntelliJ: personal workspace state
 .idea/workspace.xml
+
+.codex
