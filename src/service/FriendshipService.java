@@ -5,6 +5,8 @@ import domain.FriendshipId;
 import repository.FriendshipRepository;
 import repository.UserRepository;
 
+import java.util.List;
+
 /**
  * Constructs normalized friendships, checks participating users on insertion,
  * and delegates storage and deletion to the friendship repository.
@@ -58,5 +60,18 @@ public class FriendshipService {
     public void deleteFriendship(Long id1, Long id2)
     {
         friendshipRepo.delete(new FriendshipId(id1, id2));
+    }
+
+    /**
+     * Returns all friendships involving the specified user.
+     *
+     * @param userId the identifier to match against either end of a friendship
+     * @return a list of matching friendships, or an empty list if none match
+     * @throws UnsupportedOperationException if the repository cannot list friendships
+     */
+    public List<Friendship> getFriendshipsOf(Long userId) {
+        return friendshipRepo.findAll(friendship ->
+                friendship.getId().firstId().equals(userId)
+                        || friendship.getId().secondId().equals(userId));
     }
 }

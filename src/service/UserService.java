@@ -5,6 +5,7 @@ import domain.User;
 import repository.FriendshipRepository;
 import repository.UserRepository;
 import validation.Validator;
+import repository.RepositoryException;
 
 import java.util.Objects;
 
@@ -49,31 +50,26 @@ public class UserService {
     }
 
     /**
-     * Checks that a user exists, deletes each incident friendship, then deletes
-     * the user. A failure propagates immediately; earlier successful deletions
-     * are not undone and the user may remain after partial friendship cleanup.
-     * @param id the existing user identifier; null is absent in MEMORY and FILE
-     * @throws IllegalArgumentException if the user is absent or a delegated deletion rejects an ID
-     * @throws repository.RepositoryException if delegated persistence fails
-     * @throws UnsupportedOperationException if a delegated operation is not implemented
+     * Deletes a user after deleting all friendships involving that user.
+     * If a deletion fails, any friendships already deleted are not restored.
+     *
+     * @param id the identifier of the user to delete
+     * @throws IllegalArgumentException if the user does not exist
+     * @throws RepositoryException if a deletion cannot be persisted
+     * @throws UnsupportedOperationException if a repository operation is unsupported
      */
-    public void deleteUser(Long id)
-    {
-        if(userRepo.findOne(id).isEmpty())
-        {
+    public void deleteUser(Long id) {
+        if (userRepo.findOne(id).isEmpty()) {
             throw new IllegalArgumentException("User with ID: " + id + " doesn't exist");
         }
 
-        var friendshipCollection = friendshipRepo.findAll();
-        for(Friendship friendship : friendshipCollection)
-        {
-            var id1 = friendship.getId().firstId();
-            var id2 = friendship.getId().secondId();
-            if(id1.equals(id) || id2.equals(id))
-            {
-                friendshipRepo.delete(friendship.getId());
-            }
-        }
+        friendshipRepo.findAll(friendship ->
+                        friendship.getId().firstId().equals(id)
+                                || friendship.getId().secondId().equals(id))
+                .stream()
+                .map(Friendship::getId)
+                .forEach(friendshipRepo::delete);
+
         userRepo.delete(id);
     }
 }

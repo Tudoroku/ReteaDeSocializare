@@ -172,6 +172,12 @@ Files.newBufferedReader si Files.newBufferedWriter.
 Resursele sunt gestionate prin try-with-resources, asigurand inchiderea
 lor corespunzatoare.
 
+Am păstrat Template Method pentru repository-urile pe fișier.
+AbstractFileRepository definește pașii comuni pentru încărcare și salvare,
+iar UserFileRepository și FriendshipFileRepository definesc conversia
+dintre o linie de text și entitatea lor. Astfel, logica de citire și scriere
+rămâne într-un singur loc, iar fiecare subclasă păstrează formatul de date
+folosit la Lab 3.
 
 6. VALIDARE SI TRATAREA EXCEPTIILOR
 -----------------------------------
@@ -394,3 +400,39 @@ Livrabilele proiectului includ:
   - Un fisier demonstrativ care contine inregistrari corupte;
   - Documentatia Javadoc;
   - Prezentul fisier readme.txt.
+
+
+  Lab4:
+  Am pastrat Optional<E> ca tip de retur pentru Repository.findOne.
+  Astfel, apelantul trateaza explicit cazul in care entitatea nu exista.
+  In AbstractFileRepository, delete si update folosesc orElseThrow pentru
+  a obtine entitatea originala inainte de modificare si a o putea restaura
+  in memorie daca scrierea esueaza.
+
+
+  LAB 4 — BUCLE ÎNLOCUITE CU STREAM API
+
+  Clasa / metoda                            | Inainte (Lab 3)                     | Dupa (Lab 4)
+  ------------------------------------------|-------------------------------------|-----------------------------------------
+  UserService.deleteUser                    | Bucla peste toate prieteniile       | findAll(Predicate), map, forEach
+  CommunityService.buildGraph               | Bucla pentru noduri                 | map, distinct, collect(toMap)
+  CommunityService.buildGraph               | Bucla pentru muchii                 | map si forEach
+  CommunityService.dfs                      | Bucla peste vecinii nodului curent  | filter si forEach
+  CommunityService.getCommunities           | Bucla peste nodurile grafului       | collect cu acumulator pentru componente
+  CommunityService.getMostSociableCommunity | Doua bucle pentru scor si selectie  | mapToInt si max in fiecare comunitate, apoi map si reduce intre comunitati
+  AbstractFileRepository.loadFromFile       | while cu BufferedReader.readLine    | Files.lines si forEachOrdered
+  AbstractFileRepository.writeToFile        | Bucla cu BufferedWriter             | map, collect(toList) si Files.write
+
+BUCLE PASTRATE
+
+CommunityService.dfs pastreaza bucla while care controleaza stiva DFS.
+La fiecare pas, algoritmul scoate un nod si adauga vecinii nevizitati.
+Filtrarea vecinilor se face cu Stream API.
+
+CommunityService.longestPathDFS pastreaza bucla peste vecini pentru
+backtracking. Fiecare apel recursiv marcheaza nodul curent la intrare
+si il demarcheaza la iesire, astfel incat celelalte ramuri sa il poata
+folosi. Bucla face explicita explorarea succesiva a ramurilor.
+
+ConsoleUI pastreaza bucla meniului pentru a citi si executa comenzi
+pana la iesire. Aceasta controleaza interactiunea cu utilizatorul.

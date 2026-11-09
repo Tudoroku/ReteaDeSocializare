@@ -2,7 +2,10 @@ package repository;
 
 import domain.HasId;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Provides access to entities by identifier. Validation, null handling and
@@ -27,6 +30,20 @@ public interface Repository<ID, E extends HasId<ID>> {
      * @throws UnsupportedOperationException if retrieval is not implemented
      */
     Iterable<E> findAll();
+    /**
+     * Returns the entities that satisfy the given predicate.
+     *
+     * @param rule the predicate that determines whether to include an entity
+     * @return a list of matching entities, or an empty list if none match
+     * @throws NullPointerException if the predicate is null
+     */
+    default List<E> findAll(Predicate<E> rule)
+    {
+        Iterable<E> entities = findAll();
+        Spliterator<E> spliterator = entities.spliterator();
+        var result = StreamSupport.stream(spliterator, false).filter(rule);
+        return result.collect(Collectors.toList());
+    }
     /**
      * Inserts an entity without replacing an existing entity with the same ID.
      * @param entity the entity to insert; acceptance rules depend on the implementation

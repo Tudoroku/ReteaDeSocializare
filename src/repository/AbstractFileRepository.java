@@ -5,16 +5,21 @@ import domain.HasId;
 import validation.ValidationException;
 import validation.Validator;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
-import java.util.Optional;
+
+import java.io.UncheckedIOException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Adds validated UTF-8 text persistence to an in-memory repository.
@@ -81,66 +86,56 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
             return;
         }
 
-        try (BufferedReader br = Files.newBufferedReader(
-                filePath, StandardCharsets.UTF_8)) {
+        AtomicInteger lineNumber = new AtomicInteger();
 
-            String currentLine;
-            int lineNumber = 0;
+        try (Stream<String> lines = Files.lines(filePath, StandardCharsets.UTF_8)) {
+            lines.forEachOrdered(line -> {
+                int currentLineNumber = lineNumber.incrementAndGet();
 
-            while ((currentLine = br.readLine()) != null) {
-                lineNumber++;
-
-                if (currentLine.isBlank()) {
-                    continue;
+                if (line.isBlank()) {
+                    return;
                 }
 
                 try {
-                    E entity = extractEntity(currentLine);
+                    E entity = extractEntity(line);
                     validator.validate(entity);
                     super.save(entity);
-                }
-                catch (IllegalArgumentException | ValidationException | DateTimeParseException e) {
+                } catch (IllegalArgumentException | ValidationException | DateTimeParseException e) {
                     System.err.println(
-                            "Invalid line " + lineNumber +
-                                    " in " + filePath + ": " + e.getMessage()
+                            "Invalid line " + currentLineNumber
+                                    + " in " + filePath + ": " + e.getMessage()
                     );
                 }
-            }
-        }
-        catch (IOException e) {
-            throw new RepositoryException(
-                    "Error reading file: " + filePath, e
-            );
+            });
+        } catch (IOException e) {
+            throw new RepositoryException("Error reading file: " + filePath, e);
+        } catch (UncheckedIOException e) {
+            throw new RepositoryException("Error reading file: " + filePath, e.getCause());
         }
     }
 
 
 
+    /**
+     * Rewrites the UTF-8 data file with one line per stored entity.
+     * Creates the parent directories if needed.
+     *
+     * @throws RepositoryException if the directories or file cannot be written
+     */
     private void writeToFile() {
         try {
             Path parent = filePath.getParent();
-
             if (parent != null) {
                 Files.createDirectories(parent);
             }
 
-            try (BufferedWriter bw = Files.newBufferedWriter(
-                    filePath,
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE)) {
+            List<String> lines = StreamSupport.stream(super.findAll().spliterator(), false)
+                    .map(this::createEntityAsString)
+                    .collect(Collectors.toList());
 
-                for (E entity : super.findAll()) {
-                    bw.write(createEntityAsString(entity));
-                    bw.newLine();
-                }
-            }
-        }
-        catch (IOException e) {
-            throw new RepositoryException(
-                    "Error writing to file: " + filePath, e
-            );
+            Files.write(filePath, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RepositoryException("Error writing to file: " + filePath, e);
         }
     }
 
@@ -181,18 +176,15 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
      */
     @Override
     public void delete(ID id) {
-        Optional<E> entity = super.findOne(id);
-        if(entity.isEmpty())
-        {
-            throw new IllegalArgumentException("Inexistent Id");
-        }
+        E entity = super.findOne(id)
+                .orElseThrow(() -> new IllegalArgumentException("Inexistent Id"));
         super.delete(id);
         try {
             writeToFile();
         }
         catch (RepositoryException e)
         {
-            super.save(entity.get());
+            super.save(entity);
             throw e;
         }
     }
@@ -211,11 +203,8 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
     @Override
     public void update(E entity) {
         validator.validate(entity);
-        Optional<E> oldEntity = super.findOne(entity.getId());
-        if(oldEntity.isEmpty())
-        {
-            throw new IllegalArgumentException("Invalid entity");
-        }
+        E oldEntity = super.findOne(entity.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid entity"));
         super.update(entity);
         try
         {
@@ -223,7 +212,7 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
         }
         catch (RepositoryException e)
         {
-            super.update(oldEntity.get());
+            super.update(oldEntity);
             throw e;
         }
     }

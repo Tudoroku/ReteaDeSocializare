@@ -2,7 +2,10 @@ package service;
 
 import repository.FriendshipRepository;
 import repository.UserRepository;
-
+import domain.Friendship;
+import domain.User;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.*;
 
 /**
@@ -33,19 +36,21 @@ public class CommunityService {
      * @throws UnsupportedOperationException if repository retrieval is not implemented
      */
     public Map<Long, Set<Long>> buildGraph() {
-        Map<Long, Set<Long>> graph = new HashMap<>();
+        Map<Long, Set<Long>> graph = StreamSupport
+                .stream(userRepo.findAll().spliterator(), false)
+                .map(User::getId)
+                .distinct()
+                .collect(Collectors.toMap(userId -> userId, userId -> new HashSet<>()));
 
-        for (var user : userRepo.findAll()) {
-            graph.put(user.getId(), new HashSet<>());
-        }
+        StreamSupport.stream(friendshipRepo.findAll().spliterator(), false)
+                .map(Friendship::getId)
+                .forEach(friendshipId -> {
+                    Long firstId = friendshipId.firstId();
+                    Long secondId = friendshipId.secondId();
 
-        for (var friendship : friendshipRepo.findAll()) {
-            Long id1 = friendship.getId().firstId();
-            Long id2 = friendship.getId().secondId();
-
-            graph.get(id1).add(id2);
-            graph.get(id2).add(id1);
-        }
+                    graph.get(firstId).add(secondId);
+                    graph.get(secondId).add(firstId);
+                });
 
         return graph;
     }
@@ -62,11 +67,12 @@ public class CommunityService {
             Long current = stack.pop();
             component.add(current);
 
-            for (Long neighbor : graph.get(current)) {
-                if (visited.add(neighbor)) {
-                    stack.push(neighbor);
-                }
-            }
+            graph.get(current).stream()
+                    .filter(neighbor -> !visited.contains(neighbor))
+                    .forEach(neighbor -> {
+                        visited.add(neighbor);
+                        stack.push(neighbor);
+                    });
         }
 
         return component;
@@ -79,20 +85,37 @@ public class CommunityService {
      * @throws NullPointerException if dependencies or friendship endpoints are missing
      * @throws UnsupportedOperationException if repository retrieval is not implemented
      */
-    public List<Set<Long>> getCommunities()
-    {
-        var graph = buildGraph();
+    public List<Set<Long>> getCommunities() {
+        return getCommunities(buildGraph());
+    }
 
-        List<Set<Long>> communities = new ArrayList<>();
-        Set<Long> visited = new HashSet<>();
-
-        for (Long vertex : graph.keySet()) {
-            if (!visited.contains(vertex)) {
-                communities.add(dfs(vertex, graph, visited));
-            }
+    /**
+     * Finds the connected components of an existing graph.
+     *
+     * @param graph the adjacency map of the social network
+     * @return a mutable list containing each connected component once
+     */
+    private List<Set<Long>> getCommunities(Map<Long, Set<Long>> graph) {
+        class Components {
+            final List<Set<Long>> communities = new ArrayList<>();
+            final Set<Long> visited = new HashSet<>();
         }
 
-        return communities;
+        Components result = graph.keySet().stream().collect(
+                Components::new,
+                (components, vertex) -> {
+                    if (!components.visited.contains(vertex)) {
+                        components.communities.add(dfs(vertex, graph, components.visited));
+                    }
+                },
+                (left, right) -> right.communities.forEach(community -> {
+                    if (left.visited.addAll(community)) {
+                        left.communities.add(community);
+                    }
+                })
+        );
+
+        return result.communities;
     }
 
     /**
@@ -101,9 +124,8 @@ public class CommunityService {
      * @throws NullPointerException if dependencies or friendship endpoints are missing
      * @throws UnsupportedOperationException if repository retrieval is not implemented
      */
-    public int getNumberOfCommunities()
-    {
-        return getCommunities().size();
+    public int getNumberOfCommunities() {
+        return Math.toIntExact(getCommunities().stream().count());
     }
 
     private int longestPathDFS(Long current, Map<Long, Set<Long>> graph, Set<Long> visited)
@@ -128,43 +150,33 @@ public class CommunityService {
     }
 
     /**
-     * Selects the component containing the longest simple path, measured in edges.
-     * Ties retain the first encountered component, whose iteration order is
-     * unspecified. Builds the graph and components in separate repository reads,
-     * so they must describe the same network during this call.
-     * @return the selected mutable component set, or an unmodifiable empty set
-     *         when there are no users
-     * @throws NullPointerException if dependencies or friendship endpoints are missing,
-     *         or the separate reads produce incompatible graphs
-     * @throws UnsupportedOperationException if repository retrieval is not implemented
+     * Returns the community containing the longest simple path.
+     * If several communities tie, the first encountered community is returned.
+     *
+     * @return the selected community, or an empty set if there are no communities
+     * @throws UnsupportedOperationException if a repository cannot list its entities
      */
-    public Set<Long> getMostSociableCommunity()
-    {
+    public Set<Long> getMostSociableCommunity() {
         var graph = buildGraph();
-        List<Set<Long>> communities = getCommunities();
-        int maxGlobal = -1;
 
-        Set<Long> maxCom = Set.of();
-        Set<Long> visited = new HashSet<>();
+        return getCommunities(graph).stream()
+                .map(community -> Map.entry(community, longestPathInCommunity(community, graph)))
+                .reduce((best, current) -> best.getValue() >= current.getValue() ? best : current)
+                .map(Map.Entry::getKey)
+                .orElseGet(Set::of);
+    }
 
-        for(var community : communities)
-        {
-            int maxLocal = Integer.MIN_VALUE;
-            for(var node : community)
-            {
-                int distance = longestPathDFS(node, graph, visited);
-                if(distance > maxLocal)
-                {
-                    maxLocal = distance;
-                }
-            }
-            if(maxLocal > maxGlobal)
-            {
-                maxGlobal = maxLocal;
-                maxCom = community;
-            }
-        }
-
-        return maxCom;
+    /**
+     * Finds the length of the longest simple path in a community.
+     *
+     * @param community the user IDs in the community
+     * @param graph the adjacency map of the social network
+     * @return the maximum path length in edges, or zero if the community is empty
+     */
+    private int longestPathInCommunity(Set<Long> community, Map<Long, Set<Long>> graph) {
+        return community.stream()
+                .mapToInt(userId -> longestPathDFS(userId, graph, new HashSet<>()))
+                .max()
+                .orElse(0);
     }
 }
