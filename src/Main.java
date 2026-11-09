@@ -3,6 +3,7 @@ import repository.*;
 import service.*;
 import ui.*;
 import validation.*;
+import domain.User
 
 /**
  * Application entry point that creates configured repositories, validators,
@@ -25,6 +26,7 @@ public class Main {
     RepositoryFactory repoFactory = new RepositoryFactory();
 
     UserValidator userValidator = new UserValidator();
+    
     UserRepository userRepo = repoFactory.createUserRepository(userValidator);
 
     Validator<Friendship> friendshipValidator = new FriendshipValidator(userRepo);
