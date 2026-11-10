@@ -88,6 +88,13 @@ public class Main {
     } catch (ValidationException exception) {
       System.out.println("  Respins: " + exception.getMessage());
     }
+    Validator<User> newRule = a -> {
+      if(a.getFirstName().charAt(0) != 'A')
+      {
+        throw new ValidationException("Prima litera nu poate fi A");
+      }
+    };
+    Validator<User> composedRules = new UserValidator().andThen(newRule);
 
     UserRepository demoRepo = new InMemoryUserRepository();
     demoRepo.save(anaPopescu);

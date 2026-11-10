@@ -95,27 +95,19 @@ public class CommunityService {
      * @param graph the adjacency map of the social network
      * @return a mutable list containing each connected component once
      */
-    private List<Set<Long>> getCommunities(Map<Long, Set<Long>> graph) {
-        class Components {
-            final List<Set<Long>> communities = new ArrayList<>();
-            final Set<Long> visited = new HashSet<>();
+    private List<Set<Long>> getCommunities(
+            Map<Long, Set<Long>> graph) {
+
+        List<Set<Long>> communities = new ArrayList<>();
+        Set<Long> visited = new HashSet<>();
+
+        for (Long vertex : graph.keySet()) {
+            if (!visited.contains(vertex)) {
+                communities.add(dfs(vertex, graph, visited));
+            }
         }
 
-        Components result = graph.keySet().stream().collect(
-                Components::new,
-                (components, vertex) -> {
-                    if (!components.visited.contains(vertex)) {
-                        components.communities.add(dfs(vertex, graph, components.visited));
-                    }
-                },
-                (left, right) -> right.communities.forEach(community -> {
-                    if (left.visited.addAll(community)) {
-                        left.communities.add(community);
-                    }
-                })
-        );
-
-        return result.communities;
+        return communities;
     }
 
     /**
