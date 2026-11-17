@@ -33,3 +33,9 @@ bin/
 .idea/workspace.xml
 
 .codex
+
+#gradle
+
+.gradle/
+build/
+src/main/resources/config.properties
