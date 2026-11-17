@@ -59,7 +59,8 @@ public class FriendshipService {
      */
     public void deleteFriendship(Long id1, Long id2)
     {
-        friendshipRepo.delete(new FriendshipId(id1, id2));
+        friendshipRepo.delete(new FriendshipId(id1, id2))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ID"));
     }
 
     /**

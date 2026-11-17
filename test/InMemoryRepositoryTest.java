@@ -15,6 +15,30 @@ import java.util.Set;
 public class InMemoryRepositoryTest {
 
     @Test
+    void testMutationsPreserveUnrelatedEntities()
+    {
+        var repo = new InMemoryRepository<Long, User>();
+        User first = new User(1L, "Ana", "Popescu");
+        User second = new User(2L, "Sebi", "Ionescu");
+        repo.save(first);
+        repo.save(second);
+
+        User missing = new User(3L, "Missing", "User");
+        assertSame(missing, repo.update(missing).orElseThrow());
+        assertTrue(repo.delete(3L).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> repo.delete(null));
+        assertSame(first, repo.findOne(1L).orElseThrow());
+        assertSame(second, repo.findOne(2L).orElseThrow());
+
+        User replacement = new User(1L, "Updated", "User");
+        assertTrue(repo.update(replacement).isEmpty());
+        assertSame(second, repo.findOne(2L).orElseThrow());
+        assertSame(replacement, repo.delete(1L).orElseThrow());
+        assertSame(second, repo.findOne(2L).orElseThrow());
+        assertEquals(java.util.List.of(second), repo.findAll());
+    }
+
+    @Test
     void testUserRepositoryRejectsNullIdWithoutChangingUsers()
     {
         var repo = new InMemoryUserRepository();
@@ -121,19 +145,13 @@ public class InMemoryRepositoryTest {
         );
         repo.save(user);
 
-        repo.delete(1L);
+        assertSame(user, repo.delete(1L).orElseThrow());
 
         assertFalse(repo.findAll().iterator().hasNext());
 
         //Test delete on invalid ID
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.delete(1L);
-            }
-        });
+        assertTrue(repo.delete(1L).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> repo.delete(null));
     }
 
     @Test
@@ -155,7 +173,7 @@ public class InMemoryRepositoryTest {
                 "Ionescu"
         );
 
-        repo.update(user1);
+        assertTrue(repo.update(user1).isEmpty());
         assertSame(user1, repo.findOne(1L).orElseThrow());
         assertEquals("Sebi", repo.findOne(1L).orElseThrow().getFirstName());
         assertEquals("Ionescu", repo.findOne(1L).orElseThrow().getLastName());
@@ -168,14 +186,9 @@ public class InMemoryRepositoryTest {
                 "Popescu"
         );
 
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.update(user2);
-            }
-        });
+        assertSame(user2, repo.update(user2).orElseThrow());
+        assertTrue(repo.findOne(3L).isEmpty());
+        assertSame(user1, repo.findOne(1L).orElseThrow());
 
         //Test update on null entity
         assertThrows(IllegalArgumentException.class, new Executable()

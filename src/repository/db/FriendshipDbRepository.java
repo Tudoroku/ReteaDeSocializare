@@ -74,7 +74,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public void delete(FriendshipId friendshipId) {
+    public Optional<Friendship> delete(FriendshipId friendshipId) {
         throw new UnsupportedOperationException(
                 "Database persistence is not implemented yet"
         );
@@ -86,7 +86,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public void update(Friendship entity) {
+    public Optional<Friendship> update(Friendship entity) {
         throw new UnsupportedOperationException(
                 "Database persistence is not implemented yet"
         );

@@ -161,7 +161,7 @@ public class UserDbRepository implements UserRepository {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public void delete(Long aLong) {
+    public Optional<User> delete(Long aLong) {
         throw new UnsupportedOperationException(
                 "Database persistence is not implemented yet"
         );
@@ -173,7 +173,7 @@ public class UserDbRepository implements UserRepository {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public void update(User entity) {
+    public Optional<User> update(User entity) {
         throw new UnsupportedOperationException(
                 "Database persistence is not implemented yet"
         );

@@ -63,24 +63,25 @@ public class InMemoryRepository<ID, E extends HasId<ID>> implements Repository<I
     /**
      * {@inheritDoc}
      * Removes only the identified mapping, without cascading to related entities.
-     * @throws IllegalArgumentException if the ID is null or not stored
+     * @throws IllegalArgumentException if the ID is null
      */
     @Override
-    public void delete(ID id) {
-        if(entities.remove(id) == null)
+    public Optional<E> delete(ID id) {
+        if(id == null)
         {
-            throw new IllegalArgumentException("Invalid ID");
+            throw new IllegalArgumentException("ID cannot be null");
         }
+        return Optional.ofNullable(entities.remove(id));
     }
 
     /**
      * {@inheritDoc}
      * Stores the replacement reference without validating its other fields.
      * Rejection leaves existing mappings unchanged.
-     * @throws IllegalArgumentException if the entity or its ID is null, or its ID is absent
+     * @throws IllegalArgumentException if the entity or its ID is null
      */
     @Override
-    public void update(E entity) {
+    public Optional<E> update(E entity) {
         if(entity == null)
         {
             throw new IllegalArgumentException("Entity cannot be null");
@@ -91,7 +92,8 @@ public class InMemoryRepository<ID, E extends HasId<ID>> implements Repository<I
         }
         if(entities.replace(entity.getId(), entity) == null)
         {
-            throw new IllegalArgumentException("Entity with id " + entity.getId() + " not found");
+            return Optional.of(entity);
         }
+        return Optional.empty();
     }
 }

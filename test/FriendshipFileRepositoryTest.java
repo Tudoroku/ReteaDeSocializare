@@ -209,7 +209,7 @@ public class FriendshipFileRepositoryTest {
         Files.write(file, List.of("1;2;" + date, "3;4;" + date));
         var repo = new FriendshipFileRepository(file.toString(), validator);
         Friendship replacement = new Friendship(2L, 1L, date.plusDays(1));
-        repo.update(replacement);
+        assertTrue(repo.update(replacement).isEmpty());
 
         assertSame(replacement, repo.findOne(new FriendshipId(1L, 2L)).orElseThrow());
         List<String> lines = Files.readAllLines(file);
@@ -228,7 +228,8 @@ public class FriendshipFileRepositoryTest {
         Path file = tempDir.resolve("friendships.txt");
         Files.write(file, List.of("1;2;" + date, "3;4;" + date));
         var repo = new FriendshipFileRepository(file.toString(), validator);
-        repo.delete(new FriendshipId(2L, 1L));
+        Friendship deleted = repo.findOne(new FriendshipId(1L, 2L)).orElseThrow();
+        assertSame(deleted, repo.delete(new FriendshipId(2L, 1L)).orElseThrow());
 
         assertTrue(repo.findOne(new FriendshipId(1L, 2L)).isEmpty());
         assertEquals(List.of("3;4;" + date), Files.readAllLines(file));
@@ -276,31 +277,25 @@ public class FriendshipFileRepositoryTest {
         };
         for(Friendship friendship : invalidUpdates)
         {
-            // Users 1 and 4 exist, but their friendship does not.
-            var expectedException = friendship != null && new FriendshipId(1L, 4L).equals(friendship.getId())
-                    ? IllegalArgumentException.class : ValidationException.class;
-            assertThrows(expectedException, new Executable()
-            {
-                @Override
-                public void execute()
-                {
-                    repo.update(friendship);
-                }
-            });
+            if (friendship != null && new FriendshipId(1L, 4L).equals(friendship.getId())) {
+                assertSame(friendship, repo.update(friendship).orElseThrow());
+                assertTrue(repo.findOne(friendship.getId()).isEmpty());
+            } else {
+                var expectedException = friendship == null
+                        ? IllegalArgumentException.class : ValidationException.class;
+                assertThrows(expectedException, () -> repo.update(friendship));
+            }
             assertArrayEquals(contents, Files.readAllBytes(file));
             assertSame(original, repo.findOne(original.getId()).orElseThrow());
         }
         FriendshipId[] invalidIds = {null, new FriendshipId(1L, 4L)};
         for(FriendshipId id : invalidIds)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
-            {
-                @Override
-                public void execute()
-                {
-                    repo.delete(id);
-                }
-            });
+            if (id == null) {
+                assertThrows(IllegalArgumentException.class, () -> repo.delete(id));
+            } else {
+                assertTrue(repo.delete(id).isEmpty());
+            }
             assertArrayEquals(contents, Files.readAllBytes(file));
             assertSame(original, repo.findOne(original.getId()).orElseThrow());
         }
@@ -327,22 +322,9 @@ public class FriendshipFileRepositoryTest {
                 repo.save(new Friendship(1L, 999L, date));
             }
         });
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.update(new Friendship(1L, 2L, date));
-            }
-        });
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.delete(new FriendshipId(1L, 2L));
-            }
-        });
+        Friendship missing = new Friendship(1L, 2L, date);
+        assertSame(missing, repo.update(missing).orElseThrow());
+        assertTrue(repo.delete(new FriendshipId(1L, 2L)).isEmpty());
         assertFalse(Files.exists(file));
         assertFalse(repo.findAll().iterator().hasNext());
     }

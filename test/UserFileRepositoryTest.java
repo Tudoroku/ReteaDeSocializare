@@ -19,6 +19,39 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserFileRepositoryTest {
+
+    @Test
+    void testUpdateValidatesBeforeCheckingExistence() throws IOException
+    {
+        Path file = tempDir.resolve("users.txt");
+        Files.write(file, List.of("1;Ana;Popescu", "2;Sebi;Ionescu"));
+        var repo = new UserFileRepository(file.toString(), new UserValidator());
+        User original = repo.findOne(1L).orElseThrow();
+        User unrelated = repo.findOne(2L).orElseThrow();
+        byte[] contents = Files.readAllBytes(file);
+
+        assertThrows(ValidationException.class,
+                () -> repo.update(new User(1L, "", "Popescu")));
+        assertThrows(ValidationException.class,
+                () -> repo.update(new User(3L, "", "Popescu")));
+        assertSame(original, repo.findOne(1L).orElseThrow());
+        assertSame(unrelated, repo.findOne(2L).orElseThrow());
+        assertTrue(repo.findOne(3L).isEmpty());
+        assertArrayEquals(contents, Files.readAllBytes(file));
+    }
+
+    @Test
+    void testUpdateRejectsNullArgumentsBeforeCallingValidator()
+    {
+        Path file = tempDir.resolve("missing/null-checks.txt");
+        var repo = new UserFileRepository(file.toString(), entity -> fail("Validator must not receive null entity or ID"));
+
+        assertThrows(IllegalArgumentException.class, () -> repo.update(null));
+        assertThrows(IllegalArgumentException.class,
+                () -> repo.update(new User(null, "Ana", "Popescu")));
+        assertFalse(repo.findAll().iterator().hasNext());
+        assertFalse(Files.exists(file));
+    }
     @TempDir
     Path tempDir;
 
@@ -157,7 +190,7 @@ public class UserFileRepositoryTest {
         Files.write(file, List.of("1;Ana;Popescu", "2;Chris;Georgescu"));
         var repo = new UserFileRepository(file.toString(), new UserValidator());
         User replacement = new User(1L, "Sebi", "Ionescu");
-        repo.update(replacement);
+        assertTrue(repo.update(replacement).isEmpty());
 
         assertSame(replacement, repo.findOne(1L).orElseThrow());
         List<String> lines = Files.readAllLines(file);
@@ -175,7 +208,8 @@ public class UserFileRepositoryTest {
         Path file = tempDir.resolve("users.txt");
         Files.write(file, List.of("1;Ana;Popescu", "2;Sebi;Ionescu"));
         var repo = new UserFileRepository(file.toString(), new UserValidator());
-        repo.delete(1L);
+        User deleted = repo.findOne(1L).orElseThrow();
+        assertSame(deleted, repo.delete(1L).orElseThrow());
 
         assertTrue(repo.findOne(1L).isEmpty());
         assertEquals(List.of("2;Sebi;Ionescu"), Files.readAllLines(file));
@@ -230,31 +264,25 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUpdates)
         {
-            // Null IDs and missing IDs are rejected by the repository after validation.
-            var expectedException = user != null && (user.getId() == null || Long.valueOf(2L).equals(user.getId()))
-                    ? IllegalArgumentException.class : ValidationException.class;
-            assertThrows(expectedException, new Executable()
-            {
-                @Override
-                public void execute()
-                {
-                    repo.update(user);
-                }
-            });
+            if (user != null && Long.valueOf(2L).equals(user.getId())) {
+                assertSame(user, repo.update(user).orElseThrow());
+                assertTrue(repo.findOne(2L).isEmpty());
+            } else {
+                var expectedException = user == null || user.getId() == null
+                        ? IllegalArgumentException.class : ValidationException.class;
+                assertThrows(expectedException, () -> repo.update(user));
+            }
             assertArrayEquals(contents, Files.readAllBytes(file));
             assertSame(original, repo.findOne(1L).orElseThrow());
         }
         Long[] invalidIds = {null, 0L, -1L, 99L};
         for(Long id : invalidIds)
         {
-            assertThrows(IllegalArgumentException.class, new Executable()
-            {
-                @Override
-                public void execute()
-                {
-                    repo.delete(id);
-                }
-            });
+            if (id == null) {
+                assertThrows(IllegalArgumentException.class, () -> repo.delete(id));
+            } else {
+                assertTrue(repo.delete(id).isEmpty());
+            }
             assertArrayEquals(contents, Files.readAllBytes(file));
             assertSame(original, repo.findOne(1L).orElseThrow());
         }
@@ -292,22 +320,9 @@ public class UserFileRepositoryTest {
                 repo.save(new User(1L, "", "Popescu"));
             }
         });
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.update(new User(1L, "Ana", "Popescu"));
-            }
-        });
-        assertThrows(IllegalArgumentException.class, new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                repo.delete(1L);
-            }
-        });
+        User missing = new User(1L, "Ana", "Popescu");
+        assertSame(missing, repo.update(missing).orElseThrow());
+        assertTrue(repo.delete(1L).isEmpty());
         assertFalse(Files.exists(file));
         assertFalse(repo.findAll().iterator().hasNext());
     }

@@ -56,20 +56,23 @@ public interface Repository<ID, E extends HasId<ID>> {
     void save(E entity);
     /**
      * Removes the entity with the supplied identifier.
-     * @param id the identifier to remove; null handling is implementation-specific
-     * @throws IllegalArgumentException if id is null or no entity has that identifier
+     * @param id the non-null identifier to remove
+     * @return the deleted entity, or an empty optional if the ID is absent
+     * @throws IllegalArgumentException if id is null
      * @throws RepositoryException if persistence fails
      * @throws UnsupportedOperationException if deletion is not implemented
      */
-    void delete(ID id);
+    Optional<E> delete(ID id);
     /**
      * Replaces the stored entity with the same identifier.
-     * @param entity the replacement; acceptance rules depend on the implementation
+     * Validates the replacement when a validator is installed, before changing
+     * storage. Validation failure leaves the stored entity unchanged.
+     * @param entity the non-null replacement with a non-null ID
+     * @return an empty optional on success, or the supplied entity if its ID is absent
      * @throws validation.ValidationException if an installed validator rejects the entity
-     * @throws IllegalArgumentException if repository argument checks reject
-     * the entity or its ID, or no entity exists with that ID
+     * @throws IllegalArgumentException if the entity or its ID is null
      * @throws RepositoryException if persistence fails
      * @throws UnsupportedOperationException if replacement is not implemented
      */
-    void update(E entity);
+    Optional<E> update(E entity);
 }

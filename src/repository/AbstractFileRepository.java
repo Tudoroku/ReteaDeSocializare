@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
+import java.util.Optional;
 
 import java.io.UncheckedIOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -170,23 +171,27 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
      * If writing throws {@link RepositoryException}, the original object reference
      * is reinserted in memory. File contents are not restored; other unchecked
      * failures do not trigger this memory restoration.
-     * @param id the existing identifier to remove
-     * @throws IllegalArgumentException if the ID is null or not stored
+     * An absent ID leaves both memory and the file unchanged.
+     * @param id the non-null identifier to remove
+     * @return the deleted entity, or an empty optional if absent
+     * @throws IllegalArgumentException if the ID is null
      * @throws RepositoryException if rewriting the file fails
      */
     @Override
-    public void delete(ID id) {
-        E entity = super.findOne(id)
-                .orElseThrow(() -> new IllegalArgumentException("Inexistent Id"));
-        super.delete(id);
+    public Optional<E> delete(ID id) {
+        Optional<E> deleted = super.delete(id);
+        if (deleted.isEmpty()) {
+            return deleted;
+        }
         try {
             writeToFile();
         }
         catch (RepositoryException e)
         {
-            super.save(entity);
+            super.save(deleted.orElseThrow());
             throw e;
         }
+        return deleted;
     }
 
     /**
@@ -194,17 +199,23 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
      * and rewrites the file. If writing throws {@link RepositoryException}, the
      * original object reference is restored in memory. File contents are not
      * restored; other unchecked failures do not trigger this memory restoration.
-     * @param entity the replacement accepted by the validator, with an existing ID
+     * An absent ID leaves both memory and the file unchanged.
+     * @param entity the non-null replacement with a non-null ID
+     * @return an empty optional on success, or the supplied entity if its ID is absent
      * @throws ValidationException if validation rejects the replacement
-     * @throws IllegalArgumentException if its ID is absent, or memory argument checks fail
-     * @throws NullPointerException if the validator accepts a null replacement
+     * @throws IllegalArgumentException if the entity or its ID is null
      * @throws RepositoryException if rewriting the file fails
      */
     @Override
-    public void update(E entity) {
+    public Optional<E> update(E entity) {
+        if (entity == null || entity.getId() == null) {
+            throw new IllegalArgumentException("Entity and ID cannot be null");
+        }
         validator.validate(entity);
-        E oldEntity = super.findOne(entity.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid entity"));
+        Optional<E> oldEntity = super.findOne(entity.getId());
+        if (oldEntity.isEmpty()) {
+            return Optional.of(entity);
+        }
         super.update(entity);
         try
         {
@@ -212,8 +223,9 @@ public abstract class AbstractFileRepository<ID, E extends HasId<ID>>
         }
         catch (RepositoryException e)
         {
-            super.update(oldEntity);
+            super.update(oldEntity.orElseThrow());
             throw e;
         }
+        return Optional.empty();
     }
 }
