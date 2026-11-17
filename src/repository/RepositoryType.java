@@ -6,6 +6,6 @@ public enum RepositoryType {
     MEMORY,
     /** Loads and rewrites validated entities in UTF-8 text files. */
     FILE,
-    /** Selects database placeholders whose repository operations are unsupported. */
+    /** Persists entities in PostgreSQL using JDBC prepared statements. */
     DATABASE
 }

@@ -88,7 +88,8 @@ class FriendshipDbRepositoryIntegrationTest extends JdbcTestSupport {
             SQLException cause = assertInstanceOf(SQLException.class, error.getCause());
             assertEquals("23503", cause.getSQLState());
             assertTrue(error.getMessage().contains("saving friendship"));
-            assertTrue(error.getMessage().contains(cause.getMessage()));
+            assertTrue(error.getMessage().startsWith("Database constraint violation while "));
+            assertFalse(error.getMessage().contains(cause.getMessage()));
             assertTrue(jdbcOnly.findOne(invalid.getId()).isEmpty());
         }
     }

@@ -21,9 +21,9 @@ import java.util.function.Supplier;
  * Selects repository implementations from
  * {@code src/main/resources/config.properties} relative to the working directory.
  * Reads configuration once per factory. MEMORY ignores validators; FILE passes
- * them to repositories that load immediately; DATABASE creates placeholders and
- * does not open a connection. The repository type and file paths are trimmed.
- *  Database connection settings are passed to constructors without trimming.
+ * them to repositories that load immediately; DATABASE creates JDBC repositories
+ * that open connections when operations are called. The repository type and file
+ * paths are trimmed. Database settings are passed to constructors without trimming.
  */
 public class RepositoryFactory {
 
@@ -73,13 +73,12 @@ public class RepositoryFactory {
      * FILE requires a nonblank {@code users.file}. DATABASE requires nonblank
      * {@code db.url} and {@code db.user}, and a present {@code db.password}
      * (an empty password is accepted).
-     * @param validator the user validator; required only for FILE, ignored by
-     *        MEMORY and merely stored by DATABASE
+     * @param validator the user validator used by FILE and DATABASE, ignored by MEMORY
      * @return a new empty MEMORY repository, immediately loaded FILE repository,
-     *         or unimplemented DATABASE repository
+     *         or PostgreSQL JDBC repository
      * @throws IllegalArgumentException if a required setting is missing or blank,
      *         or the configured file path is invalid
-     * @throws NullPointerException if FILE is selected and validator is null
+     * @throws NullPointerException if FILE or DATABASE is selected and validator is null
      * @throws RepositoryException if a FILE repository cannot read its data
      */
     public UserRepository createUserRepository(Validator<User> validator) {
@@ -120,13 +119,13 @@ public class RepositoryFactory {
      * Creates a friendship repository for the configured storage type.
      * Only the selected repository reads its storage settings.
      *
-     * @param validator the friendship validator used by FILE, stored by DATABASE,
+     * @param validator the friendship validator used by FILE and DATABASE,
      *                  and ignored by MEMORY
      * @return a new empty MEMORY repository, an immediately loaded FILE repository,
-     *         or a DATABASE placeholder
+     *         or a PostgreSQL JDBC repository
      * @throws IllegalArgumentException if a required setting is missing or blank,
      *         or the configured file path is invalid
-     * @throws NullPointerException if FILE is selected and the validator is null
+     * @throws NullPointerException if FILE or DATABASE is selected and validator is null
      * @throws RepositoryException if the FILE repository cannot read its data
      */
     public FriendshipRepository createFriendshipRepository(Validator<Friendship> validator) {

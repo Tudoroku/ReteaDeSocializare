@@ -3,6 +3,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import repository.RepositoryException;
 import repository.db.UserDbRepository;
+import repository.db.FriendshipDbRepository;
+import service.UserService;
+import validation.FriendshipValidator;
+import validation.UserValidator;
 import validation.ValidationException;
 
 import java.sql.SQLException;
@@ -77,8 +81,7 @@ class UserDbRepositoryIntegrationTest extends JdbcTestSupport {
     void invalidNamesAreRejectedOnSaveAndUpdateWithoutChangingRows() {
         User original = createUser();
         String[][] invalid = {{null, "Last"}, {"", "Last"}, {"  ", "Last"},
-                {"First", null}, {"First", ""}, {"First", "\t"},
-                {"First;Other", "Last"}, {"First", "Last\nOther"}, {"First\rOther", "Last"}};
+                {"First", null}, {"First", ""}, {"First", "\t"}};
         for (String[] names : invalid) {
             User candidate = track(new User(names[0], names[1]));
             assertThrows(ValidationException.class, () -> users.save(candidate));
@@ -98,17 +101,48 @@ class UserDbRepositoryIntegrationTest extends JdbcTestSupport {
         SQLException cause = assertInstanceOf(SQLException.class, error.getCause());
         assertEquals("23502", cause.getSQLState());
         assertTrue(error.getMessage().contains("saving user"));
+        assertTrue(error.getMessage().startsWith("Database constraint violation while "));
+        assertFalse(error.getMessage().contains(cause.getMessage()));
         assertNull(invalid.getId());
     }
 
     @Test
-    void preparedStatementStoresExactInjectionTextWhenValidationIsBypassed() {
-        // Diagnostic for parameter binding only; production validation still rejects this name.
-        var jdbcOnly = new UserDbRepository(u -> {}, url, username, password);
+    void serviceStoresExactInjectionTextWithProductionValidation() throws SQLException {
+        var friendships = new FriendshipDbRepository(new FriendshipValidator(users), url, username, password);
+        var service = new UserService(users, new UserValidator(), friendships);
         User payload = track(new User("'); DROP TABLE users; --", "InjectionTest"));
-        jdbcOnly.save(payload);
+        Long generatedId = service.addUser(payload);
+        assertNotNull(generatedId);
+        assertTrue(generatedId > 0);
+        assertEquals(generatedId, payload.getId());
         assertUser(payload, users.findOne(payload.getId()).orElseThrow());
-        User survivor = createUser();
+        // A direct read proves the table still exists and remains accessible.
+        try (var c = connection();
+             var ps = c.prepareStatement("SELECT id FROM users WHERE id = ?")) {
+            ps.setLong(1, generatedId);
+            try (var rs = ps.executeQuery()) {
+                assertTrue(rs.next());
+                assertEquals(generatedId.longValue(), rs.getLong("id"));
+            }
+        }
+        User survivor = track(new User("Normal", "User"));
+        service.addUser(survivor);
         assertUser(survivor, users.findOne(survivor.getId()).orElseThrow());
+    }
+
+    @Test
+    void semicolonsAndLineBreaksRoundTripOnSaveAndUpdate() {
+        String[][] names = {{"First;Other", "Last"}, {"First", "Last;Other"},
+                {"First\nOther", "Last"}, {"First", "Last\nOther"},
+                {"First\rOther", "Last"}, {"First", "Last\rOther"}};
+        User original = createUser();
+        for (String[] pair : names) {
+            User candidate = track(new User(pair[0], pair[1]));
+            users.save(candidate);
+            assertUser(candidate, users.findOne(candidate.getId()).orElseThrow());
+            User replacement = new User(original.getId(), pair[0], pair[1]);
+            assertTrue(users.update(replacement).isEmpty());
+            assertUser(replacement, users.findOne(original.getId()).orElseThrow());
+        }
     }
 }

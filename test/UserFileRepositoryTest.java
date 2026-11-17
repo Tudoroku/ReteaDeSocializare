@@ -457,6 +457,8 @@ public class UserFileRepositoryTest {
                 }
             });
             assertTrue(repo.findOne(user.getId()).isEmpty());
+            assertThrows(ValidationException.class,
+                    () -> repo.update(new User(1L, user.getFirstName(), user.getLastName())));
             assertEquals(snapshot, repo.findAll());
             assertSame(first, repo.findOne(1L).orElseThrow());
             assertSame(second, repo.findOne(2L).orElseThrow());
@@ -506,6 +508,8 @@ public class UserFileRepositoryTest {
                 }
             });
             assertTrue(repo.findOne(user.getId()).isEmpty());
+            assertThrows(ValidationException.class,
+                    () -> repo.update(new User(1L, user.getFirstName(), user.getLastName())));
             assertEquals(snapshot, repo.findAll());
             assertSame(first, repo.findOne(1L).orElseThrow());
             assertSame(second, repo.findOne(2L).orElseThrow());

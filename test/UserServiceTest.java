@@ -16,6 +16,17 @@ import validation.ValidationException;
 public class UserServiceTest {
 
     @Test
+    void memoryAcceptsNamesWithFileDelimitersThroughProductionValidation() {
+        var repo = new InMemoryUserRepository();
+        var service = new UserService(repo, new UserValidator(), new InMemoryFriendshipRepository());
+        User user = new User(1L, "'); DROP TABLE users; --", "Last\nOther\rName");
+        assertEquals(1L, service.addUser(user));
+        User stored = repo.findOne(1L).orElseThrow();
+        assertEquals(user.getFirstName(), stored.getFirstName());
+        assertEquals(user.getLastName(), stored.getLastName());
+    }
+
+    @Test
     void testAddUser()
     {
         var repo = new InMemoryUserRepository();

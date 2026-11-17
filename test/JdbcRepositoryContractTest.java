@@ -32,6 +32,19 @@ class JdbcRepositoryContractTest {
     }
 
     @Test
+    void userConstructorRejectsNullDependenciesWithoutConnecting() {
+        assertAll(
+                () -> assertThrows(NullPointerException.class,
+                        () -> new UserDbRepository(null, UNREACHABLE, "unused", "")),
+                () -> assertThrows(NullPointerException.class,
+                        () -> new UserDbRepository(new UserValidator(), null, "unused", "")),
+                () -> assertThrows(NullPointerException.class,
+                        () -> new UserDbRepository(new UserValidator(), UNREACHABLE, null, "")),
+                () -> assertThrows(NullPointerException.class,
+                        () -> new UserDbRepository(new UserValidator(), UNREACHABLE, "unused", null)));
+    }
+
+    @Test
     void userNullArgumentsAreRejectedBeforeConnecting() {
         var repo = users();
         assertAll(() -> assertThrows(IllegalArgumentException.class, () -> repo.findOne(null)),
@@ -52,13 +65,16 @@ class JdbcRepositoryContractTest {
     }
 
     @Test
-    void requiredInjectionNameIsCurrentlyBlockedByProductionValidation() {
+    void requiredInjectionNamePassesProductionValidationAndReachesJdbc() {
         String payload = "'); DROP TABLE users; --";
         var candidate = new User(payload, "Last");
-        ValidationException error = assertThrows(ValidationException.class, () -> users().save(candidate));
-        assertTrue(error.getMessage().contains("semicolons"));
+        assertDoesNotThrow(() -> new UserValidator().validate(candidate));
+        RepositoryException error = assertThrows(RepositoryException.class, () -> users().save(candidate));
+        SQLException cause = assertInstanceOf(SQLException.class, error.getCause());
+        assertTrue(cause.getSQLState().startsWith("08"));
+        assertTrue(error.getMessage().contains("Database connection unavailable while saving user"));
         assertNull(candidate.getId());
-        assertThrows(ValidationException.class, () -> users().save(new User("First", payload)));
+        assertDoesNotThrow(() -> new UserValidator().validate(new User("First", payload)));
     }
 
     @Test
@@ -98,5 +114,8 @@ class JdbcRepositoryContractTest {
         assertTrue(cause.getSQLState().startsWith("08"), operation);
         assertFalse(cause.getMessage().isBlank());
         assertTrue(error.getMessage().contains(context), error.getMessage());
+        assertTrue(error.getMessage().startsWith("Database connection unavailable while "));
+        assertFalse(error.getMessage().contains(cause.getMessage()));
+        assertFalse(error.getMessage().contains(UNREACHABLE));
     }
 }

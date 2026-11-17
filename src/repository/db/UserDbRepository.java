@@ -8,11 +8,12 @@ import validation.Validator;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Placeholder for user database persistence. Stores constructor arguments only;
- * no connection, validation or CRUD operation is implemented.
+ * Persists users in PostgreSQL using JDBC prepared statements and a connection
+ * per operation. PostgreSQL generates IDs, which save assigns to the supplied user.
  */
 public class UserDbRepository implements UserRepository {
     private final Validator<User> validator;
@@ -20,29 +21,35 @@ public class UserDbRepository implements UserRepository {
     private final String user;
     private final String password;
 
+    /**
+     * Reports that PostgreSQL generates user identifiers.
+     * @return true
+     */
     @Override
     public boolean generatesIds() {
         return true;
     }
     /**
-     * Stores database settings without checking them or opening a connection.
-     * @param validator the validator reserved for future use; may be null
-     * @param url the database URL reserved for future use; may be null
-     * @param user the database username reserved for future use; may be null
-     * @param password the database password reserved for future use; may be null
+     * Stores non-null dependencies without opening a connection.
+     * @param validator the validator used before save and update
+     * @param url the JDBC connection URL
+     * @param user the database username
+     * @param password the database password
+     * @throws NullPointerException if any argument is null
      */
     public UserDbRepository(Validator<User> validator, String url, String user, String password) {
-        this.validator = validator;
-        this.url = url;
-        this.user = user;
-        this.password = password;
+        this.validator = Objects.requireNonNull(validator);
+        this.url = Objects.requireNonNull(url);
+        this.user = Objects.requireNonNull(user);
+        this.password = Objects.requireNonNull(password);
     }
 
     /**
-     * Rejects lookup because database persistence is not implemented.
-     * @param id the ignored identifier, including null
-     * @return no result; this method always throws
-     * @throws UnsupportedOperationException always
+     * Finds a user by identifier.
+     * @param id the non-null identifier
+     * @return the matching user, or an empty optional if absent
+     * @throws IllegalArgumentException if id is null
+     * @throws RepositoryException if database access fails
      */
     @Override
     public Optional<User> findOne(Long id) {
@@ -71,15 +78,15 @@ public class UserDbRepository implements UserRepository {
         }
         catch (SQLException e)
         {
-            throw new RepositoryException("Error finding user with ID " + id, e);
+            throw JdbcErrors.failure("finding user", e);
         }
         return Optional.empty();
     }
 
     /**
-     * Rejects retrieval because database persistence is not implemented.
-     * @return no iterable; this method always throws
-     * @throws UnsupportedOperationException always
+     * Retrieves users ordered by identifier.
+     * @return the stored users, or an empty iterable
+     * @throws RepositoryException if database access fails
      */
 
     @Override
@@ -103,7 +110,7 @@ public class UserDbRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException("Error retrieving users", e);
+            throw JdbcErrors.failure("retrieving users", e);
         }
 
         return users;
@@ -111,9 +118,11 @@ public class UserDbRepository implements UserRepository {
 
 
     /**
-     * Rejects insertion before performing any validation or storage.
-     * @param entity the ignored entity, including null
-     * @throws UnsupportedOperationException always
+     * Validates and inserts a user, assigning the PostgreSQL-generated ID.
+     * @param entity the user to insert, with a null ID
+     * @throws IllegalArgumentException if entity is null or already has an ID
+     * @throws validation.ValidationException if validation fails
+     * @throws RepositoryException if database access fails or no ID is returned
      */
     @Override
     public void save(User entity) {
@@ -150,15 +159,17 @@ public class UserDbRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException("Error saving user", e);
+            throw JdbcErrors.failure("saving user", e);
         }
     }
 
 
     /**
-     * Rejects deletion without examining the identifier.
-     * @param aLong the ignored identifier, including null
-     * @throws UnsupportedOperationException always
+     * Deletes a user; database foreign keys cascade to associated friendships.
+     * @param id the non-null identifier to delete
+     * @return the deleted user, or an empty optional if absent
+     * @throws IllegalArgumentException if id is null
+     * @throws RepositoryException if database access fails
      */
 
     @Override
@@ -189,7 +200,7 @@ public class UserDbRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException("Error deleting user with ID " + id, e);
+            throw JdbcErrors.failure("deleting user", e);
         }
 
         return Optional.empty();
@@ -197,9 +208,12 @@ public class UserDbRepository implements UserRepository {
 
 
     /**
-     * Rejects replacement before performing any validation or storage.
-     * @param entity the ignored replacement, including null
-     * @throws UnsupportedOperationException always
+     * Validates and updates the names of an existing user.
+     * @param entity the replacement user with a non-null ID
+     * @return an empty optional on success, or the supplied entity if absent
+     * @throws IllegalArgumentException if entity or its ID is null
+     * @throws validation.ValidationException if validation fails
+     * @throws RepositoryException if database access fails
      */
 
     @Override
@@ -228,7 +242,7 @@ public class UserDbRepository implements UserRepository {
             return rows == 0 ? Optional.of(entity) : Optional.empty();
 
         } catch (SQLException e) {
-            throw new RepositoryException("Error updating user", e);
+            throw JdbcErrors.failure("updating user", e);
         }
     }
 

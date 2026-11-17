@@ -31,6 +31,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
      * @param url JDBC connection URL
      * @param user database username
      * @param password database password
+     * @throws NullPointerException if any argument is null
      */
     public FriendshipDbRepository(
             Validator<Friendship> validator,
@@ -94,9 +95,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException(
-                    "Error finding friendship: " + e.getMessage(), e
-            );
+            throw JdbcErrors.failure("finding friendship", e);
         }
 
         return Optional.empty();
@@ -127,9 +126,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException(
-                    "Error retrieving friendships: " + e.getMessage(), e
-            );
+            throw JdbcErrors.failure("retrieving friendships", e);
         }
 
         return friendships;
@@ -170,9 +167,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RepositoryException(
-                    "Error saving friendship: " + e.getMessage(), e
-            );
+            throw JdbcErrors.failure("saving friendship", e);
         }
     }
 
@@ -213,9 +208,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
                     : Optional.empty();
 
         } catch (SQLException e) {
-            throw new RepositoryException(
-                    "Error updating friendship: " + e.getMessage(), e
-            );
+            throw JdbcErrors.failure("updating friendship", e);
         }
     }
 
@@ -252,9 +245,7 @@ public class FriendshipDbRepository implements FriendshipRepository {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException(
-                    "Error deleting friendship: " + e.getMessage(), e
-            );
+            throw JdbcErrors.failure("deleting friendship", e);
         }
 
         return Optional.empty();

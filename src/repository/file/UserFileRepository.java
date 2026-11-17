@@ -9,8 +9,8 @@ import validation.Validator;
 /**
  * Persists users as {@code id;firstName;lastName} lines using the loading and
  * rewrite behavior of {@link AbstractFileRepository}. Loaded fields are trimmed;
- * saved fields are emitted as supplied. Suitability of names for this format is
- * the supplied validator's responsibility.
+ * saved fields are emitted as supplied. Composes the supplied validator with
+ * FILE-specific rejection of semicolons and line breaks.
  */
 public class UserFileRepository
         extends AbstractFileRepository<Long, User>
@@ -33,6 +33,11 @@ public class UserFileRepository
     }
 
 
+    /**
+     * Checks that validated names can be stored in the unescaped FILE format.
+     * @param user the user already accepted by the supplied validator
+     * @throws ValidationException if either name contains a semicolon or line break
+     */
     private static void validateFileFormat(User user) {
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
