@@ -1,6 +1,6 @@
 
 package repository.file;
-
+import validation.ValidationException;
 import domain.User;
 import repository.AbstractFileRepository;
 import repository.UserRepository;
@@ -26,9 +26,28 @@ public class UserFileRepository
      * @throws java.nio.file.InvalidPathException if filename is not a valid path
      * @throws repository.RepositoryException if loading encounters an I/O error
      */
+
     public UserFileRepository(String filename, Validator<User> validator) {
-        super(filename, validator);
+        super(filename, validator.andThen(UserFileRepository::validateFileFormat));
         loadFromFile();
+    }
+
+
+    private static void validateFileFormat(User user) {
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+
+        if (firstName.contains(";") ||
+                lastName.contains(";") ||
+                firstName.contains("\n") ||
+                lastName.contains("\n") ||
+                firstName.contains("\r") ||
+                lastName.contains("\r")) {
+
+            throw new ValidationException(
+                    "Names cannot contain semicolons or line breaks in FILE mode!"
+            );
+        }
     }
 
     /**

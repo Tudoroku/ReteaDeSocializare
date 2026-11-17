@@ -36,16 +36,5 @@ public class UserValidator implements Validator<User>{
         if (entity.getLastName() == null || entity.getLastName().isBlank()) {
             throw new ValidationException("Last name cannot be empty!");
         }
-        if (entity.getFirstName().contains(";") ||
-                entity.getLastName().contains(";") ||
-                entity.getFirstName().contains("\n") ||
-                entity.getLastName().contains("\n") ||
-                entity.getFirstName().contains("\r") ||
-                entity.getLastName().contains("\r")) {
-
-            throw new ValidationException(
-                    "Names cannot contain semicolons or line breaks!"
-            );
-        }
     }
 }
