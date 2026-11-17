@@ -1,9 +1,13 @@
 package repository.db;
 
 import domain.User;
+import repository.RepositoryException;
 import repository.UserRepository;
 import validation.Validator;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,15 +40,40 @@ public class UserDbRepository implements UserRepository {
 
     /**
      * Rejects lookup because database persistence is not implemented.
-     * @param aLong the ignored identifier, including null
+     * @param id the ignored identifier, including null
      * @return no result; this method always throws
      * @throws UnsupportedOperationException always
      */
     @Override
-    public Optional<User> findOne(Long aLong) {
-        throw new UnsupportedOperationException(
-                "Database persistence is not implemented yet"
-        );
+    public Optional<User> findOne(Long id) {
+        if(id == null)
+        {
+            throw new IllegalArgumentException("Id cannot be null!");
+        }
+        String sql = "SELECT id, first_name, last_name FROM users WHERE id = ?";
+        try (Connection c = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = c.prepareStatement(sql))
+        {
+
+
+                ps.setLong(1, id);
+                try(ResultSet rs = ps.executeQuery())
+                {
+                    if (rs.next()) {
+                        return Optional.of(new User(
+                                rs.getLong("id"),
+                                rs.getString("first_name"),
+                                rs.getString("last_name")
+                        ));
+                    }
+                }
+
+        }
+        catch (SQLException e)
+        {
+            throw new RepositoryException("Error finding user with ID " + id, e);
+        }
+        return Optional.empty();
     }
 
     /**
@@ -52,12 +81,34 @@ public class UserDbRepository implements UserRepository {
      * @return no iterable; this method always throws
      * @throws UnsupportedOperationException always
      */
+
     @Override
     public Iterable<User> findAll() {
-        throw new UnsupportedOperationException(
-                "Database persistence is not implemented yet"
-        );
+        List<User> users = new ArrayList<>();
+
+        String sql = "SELECT id, first_name, last_name FROM users ORDER BY id";
+
+        try (Connection c = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                User found = new User(
+                        rs.getLong("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
+                );
+
+                users.add(found);
+            }
+
+        } catch (SQLException e) {
+            throw new RepositoryException("Error retrieving users", e);
+        }
+
+        return users;
     }
+
 
     /**
      * Rejects insertion before performing any validation or storage.
@@ -66,10 +117,43 @@ public class UserDbRepository implements UserRepository {
      */
     @Override
     public void save(User entity) {
-        throw new UnsupportedOperationException(
-                "Database persistence is not implemented yet"
-        );
+        if (entity == null) {
+            throw new IllegalArgumentException("User cannot be null!");
+        }
+
+        if (entity.getId() != null) {
+            throw new IllegalArgumentException(
+                    "User ID must be null! PostgreSQL generates it."
+            );
+        }
+
+        validator.validate(entity);
+
+        String sql = """
+            INSERT INTO users (first_name, last_name)
+            VALUES (?, ?)
+            RETURNING id
+            """;
+
+        try (Connection c = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, entity.getFirstName());
+            ps.setString(2, entity.getLastName());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    entity.setId(rs.getLong("id"));
+                } else {
+                    throw new SQLException("No generated ID returned!");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RepositoryException("Error saving user", e);
+        }
     }
+
 
     /**
      * Rejects deletion without examining the identifier.
