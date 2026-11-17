@@ -160,22 +160,76 @@ public class UserDbRepository implements UserRepository {
      * @param aLong the ignored identifier, including null
      * @throws UnsupportedOperationException always
      */
+
     @Override
-    public Optional<User> delete(Long aLong) {
-        throw new UnsupportedOperationException(
-                "Database persistence is not implemented yet"
-        );
+    public Optional<User> delete(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null!");
+        }
+
+        String sql = """
+            DELETE FROM users
+            WHERE id = ?
+            RETURNING id, first_name, last_name
+            """;
+
+        try (Connection c = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new User(
+                            rs.getLong("id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name")
+                    ));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RepositoryException("Error deleting user with ID " + id, e);
+        }
+
+        return Optional.empty();
     }
+
 
     /**
      * Rejects replacement before performing any validation or storage.
      * @param entity the ignored replacement, including null
      * @throws UnsupportedOperationException always
      */
+
     @Override
     public Optional<User> update(User entity) {
-        throw new UnsupportedOperationException(
-                "Database persistence is not implemented yet"
-        );
+        if (entity == null || entity.getId() == null) {
+            throw new IllegalArgumentException("User or ID cannot be null!");
+        }
+
+        validator.validate(entity);
+
+        String sql = """
+            UPDATE users
+            SET first_name = ?, last_name = ?
+            WHERE id = ?
+            """;
+
+        try (Connection c = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, entity.getFirstName());
+            ps.setString(2, entity.getLastName());
+            ps.setLong(3, entity.getId());
+
+            int rows = ps.executeUpdate();
+
+            return rows == 0 ? Optional.of(entity) : Optional.empty();
+
+        } catch (SQLException e) {
+            throw new RepositoryException("Error updating user", e);
+        }
     }
+
 }
