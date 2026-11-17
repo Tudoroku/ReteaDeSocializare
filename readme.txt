@@ -108,6 +108,3 @@ Testele de integrare JDBC folosesc o baza separata, socialnetwork_test, configur
 - SOCIALNETWORK_TEST_DB_USER
 - SOCIALNETWORK_TEST_DB_PASSWORD
 
-Au fost executate cu succes 21 de teste de integrare PostgreSQL, fara erori sau teste ignorate.
-
-Codul sursa si metodele relevante sunt documentate prin Javadoc.

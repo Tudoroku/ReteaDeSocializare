@@ -315,7 +315,7 @@ JDBC `SQLException`s are wrapped in `RepositoryException`, preserving the origin
 
 | SQLState | User-facing category |
 | --- | --- |
-| Class `08` | Database connection unavailable |
+| Class `8` | Database connection unavailable |
 | Class `23` | Database constraint violation |
 | Other or missing state | Database error |
 
