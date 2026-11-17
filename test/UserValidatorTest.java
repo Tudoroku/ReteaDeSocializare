@@ -31,6 +31,21 @@ public class UserValidatorTest {
     }
 
     @Test
+    void testNullIdStillRequiresValidNames()
+    {
+        User user = new User(null, "Stefan", "Gheorghidiu");
+        assertDoesNotThrow(() -> validator.validate(user));
+        assertNull(user.getId());
+        assertEquals("Stefan", user.getFirstName());
+        assertEquals("Gheorghidiu", user.getLastName());
+
+        assertThrows(ValidationException.class,
+                () -> validator.validate(new User(null, "", "Gheorghidiu")));
+        assertThrows(ValidationException.class,
+                () -> validator.validate(new User(null, "Stefan", null)));
+    }
+
+    @Test
     void testNullUserValidation()
     {
         User user = null;
@@ -53,7 +68,7 @@ public class UserValidatorTest {
                 "name",
                 "Popescu"
         );
-        assertThrows(ValidationException.class, new Executable()
+        assertDoesNotThrow(new Executable()
         {
             @Override
             public void execute()

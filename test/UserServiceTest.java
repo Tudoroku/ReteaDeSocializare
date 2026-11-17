@@ -30,14 +30,8 @@ public class UserServiceTest {
                 "Popescu"
         );
 
-        assertDoesNotThrow(new Executable()
-        {
-            @Override
-            public void execute()
-            {
-                service.addUser(chris);
-            }
-        });
+        assertFalse(service.generatesUserIds());
+        assertEquals(1L, service.addUser(chris));
         assertSame(chris, repo.findOne(1L).orElseThrow());
 
         //Test Invalid User
@@ -75,6 +69,32 @@ public class UserServiceTest {
             }
         });
         assertSame(chris, repo.findOne(1L).orElseThrow());
+    }
+
+    @Test
+    void testAddUserReturnsGeneratedId()
+    {
+        var repo = new InMemoryUserRepository() {
+            @Override
+            public boolean generatesIds() {
+                return true;
+            }
+
+            @Override
+            public void save(User user) {
+                assertNull(user.getId());
+                user.setId(42L);
+                super.save(user);
+            }
+        };
+        var service = new UserService(repo, new UserValidator(), new InMemoryFriendshipRepository());
+        User user = new User("Ana", "Popescu");
+
+        assertTrue(service.generatesUserIds());
+        assertNull(user.getId());
+        assertEquals(42L, service.addUser(user));
+        assertEquals(42L, user.getId());
+        assertSame(user, repo.findOne(42L).orElseThrow());
     }
 
     @Test

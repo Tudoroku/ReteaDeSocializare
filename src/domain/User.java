@@ -8,10 +8,13 @@ import java.util.Objects;
  * name checks belong to {@link validation.UserValidator}.
  */
 public class User implements HasId<Long>{
-    private final Long id;
+    private Long id;
     private final String firstName;
     private final String lastName;
 
+    public User(String firstName, String lastName) {
+        this(null, firstName, lastName);
+    }
     /**
      * Stores the supplied values without validating them.
      * @param id the identifier, which may be null or nonpositive at construction
@@ -52,7 +55,9 @@ public class User implements HasId<Long>{
     {
         return this.lastName;
     }
-
+    public void setId(Long id) {
+        this.id = id;
+    }
     /**
      * Returns a diagnostic representation including the ID and both names.
      * @return the user description, with null fields represented as {@code null}

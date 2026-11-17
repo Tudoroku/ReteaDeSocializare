@@ -16,6 +16,10 @@ public class UserDbRepository implements UserRepository {
     private final String user;
     private final String password;
 
+    @Override
+    public boolean generatesIds() {
+        return true;
+    }
     /**
      * Stores database settings without checking them or opening a connection.
      * @param validator the validator reserved for future use; may be null

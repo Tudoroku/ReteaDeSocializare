@@ -205,8 +205,8 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUsers)
         {
-            // The valid user with ID 1 is rejected as a duplicate, not by validation.
-            var expectedException = user != null && Long.valueOf(1L).equals(user.getId())
+            // Null IDs and duplicate IDs are rejected by the repository after validation.
+            var expectedException = user != null && (user.getId() == null || Long.valueOf(1L).equals(user.getId()))
                     ? IllegalArgumentException.class : ValidationException.class;
             assertThrows(expectedException, new Executable()
             {
@@ -230,8 +230,8 @@ public class UserFileRepositoryTest {
         };
         for(User user : invalidUpdates)
         {
-            // The valid user with ID 2 passes validation but does not exist.
-            var expectedException = user != null && Long.valueOf(2L).equals(user.getId())
+            // Null IDs and missing IDs are rejected by the repository after validation.
+            var expectedException = user != null && (user.getId() == null || Long.valueOf(2L).equals(user.getId()))
                     ? IllegalArgumentException.class : ValidationException.class;
             assertThrows(expectedException, new Executable()
             {
@@ -261,6 +261,22 @@ public class UserFileRepositoryTest {
         var reloaded = new UserFileRepository(file.toString(), new UserValidator());
         assertEquals("Ana", reloaded.findOne(1L).orElseThrow().getFirstName());
         assertEquals("Popescu", reloaded.findOne(1L).orElseThrow().getLastName());
+    }
+
+    @Test
+    void testNullIdRejectedWithoutCreatingFile()
+    {
+        Path file = tempDir.resolve("missing/users.txt");
+        var repo = new UserFileRepository(file.toString(), new UserValidator());
+        User user = new User(null, "Ana", "Popescu");
+
+        assertFalse(repo.generatesIds());
+        assertThrows(IllegalArgumentException.class, () -> repo.save(user));
+        assertThrows(IllegalArgumentException.class, () -> repo.update(user));
+        assertNull(user.getId());
+        assertTrue(repo.findOne(null).isEmpty());
+        assertFalse(repo.findAll().iterator().hasNext());
+        assertFalse(Files.exists(file));
     }
 
     @Test

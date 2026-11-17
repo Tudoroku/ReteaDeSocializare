@@ -43,12 +43,14 @@ public class UserService {
      * @throws repository.RepositoryException if repository persistence fails
      * @throws UnsupportedOperationException if insertion is not implemented
      */
-    public void addUser(User user)
-    {
-            validator.validate(user);
-            userRepo.save(user);
+    public Long addUser(User user) {
+        validator.validate(user);
+        userRepo.save(user);
+        return user.getId();
     }
-
+    public boolean generatesUserIds() {
+        return userRepo.generatesIds();
+    }
     /**
      * Deletes a user after deleting all friendships involving that user.
      * If a deletion fails, any friendships already deleted are not restored.

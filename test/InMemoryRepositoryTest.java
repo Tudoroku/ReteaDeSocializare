@@ -2,6 +2,7 @@ import domain.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import repository.InMemoryRepository;
+import repository.InMemoryUserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,6 +13,25 @@ import java.util.Optional;
 import java.util.Set;
 
 public class InMemoryRepositoryTest {
+
+    @Test
+    void testUserRepositoryRejectsNullIdWithoutChangingUsers()
+    {
+        var repo = new InMemoryUserRepository();
+        User original = new User(1L, "Ana", "Popescu");
+        repo.save(original);
+        var snapshot = repo.findAll();
+        User user = new User(null, "Sebi", "Ionescu");
+
+        assertFalse(repo.generatesIds());
+        assertThrows(IllegalArgumentException.class, () -> repo.save(user));
+        assertEquals(snapshot, repo.findAll());
+        assertThrows(IllegalArgumentException.class, () -> repo.update(user));
+        assertEquals(snapshot, repo.findAll());
+        assertSame(original, repo.findOne(1L).orElseThrow());
+        assertTrue(repo.findOne(null).isEmpty());
+        assertNull(user.getId());
+    }
 
     @Test
     void testSave()

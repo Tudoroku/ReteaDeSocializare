@@ -126,10 +126,13 @@ public class ConsoleUI implements UI{
         }
     }
 
-    private void addUser()
-    {
-        System.out.print("User ID: ");
-        Long id = Long.parseLong(scanner.nextLine().trim());
+    private void addUser() {
+        Long id = null;
+
+        if (!userService.generatesUserIds()) {
+            System.out.print("User ID: ");
+            id = Long.parseLong(scanner.nextLine().trim());
+        }
 
         System.out.print("First name: ");
         String firstName = scanner.nextLine().trim();
@@ -138,9 +141,10 @@ public class ConsoleUI implements UI{
         String lastName = scanner.nextLine().trim();
 
         User user = new User(id, firstName, lastName);
-        userService.addUser(user);
 
-        System.out.println("User added successfully!");
+        Long savedId = userService.addUser(user);
+
+        System.out.println("User added successfully! ID: " + savedId);
     }
 
     private void deleteUser()
